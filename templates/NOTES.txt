@@ -1,0 +1,22 @@
+{{ include "bitcoin-shard-proxy.fullname" . }} installed in namespace {{ .Release.Namespace }}.
+
+Networking mode: {{ .Values.networking.mode }}
+{{- if eq .Values.networking.mode "multus" }}
+  Multus NetworkAttachmentDefinition: {{ .Values.networking.multus.namespace }}/{{ .Values.networking.multus.networkName }}
+  Fabric interface in pod: {{ .Values.networking.multus.interface }}
+  Fabric IPv6 (per-pod): {{ if .Values.networking.multus.fabricIPv6 }}{{ .Values.networking.multus.fabricIPv6 }}{{ else }}<UNSET — set networking.multus.fabricIPv6>{{ end }}
+{{- else if eq .Values.networking.mode "host" }}
+  hostNetwork enabled. MULTICAST_IF on host: {{ .Values.config.multicastIf }}
+{{- else if eq .Values.networking.mode "unicast" }}
+  WARNING: unicast egress mode is reserved for a future proxy release and is not yet implemented.
+{{- end }}
+
+Metrics: http://{{ include "bitcoin-shard-proxy.fullname" . }}.{{ .Release.Namespace }}.svc:{{ .Values.service.metricsPort }}{{ .Values.metrics.path }}
+{{- if .Values.metrics.serviceMonitor.enabled }}
+
+A ServiceMonitor (monitoring.coreos.com/v1) was created.
+Prereq: kube-prometheus-stack or equivalent CRDs must be installed in the cluster.
+{{- end }}
+
+See the chart README for the full values reference:
+  https://github.com/lightwebinc/bitcoin-shard-proxy-helm

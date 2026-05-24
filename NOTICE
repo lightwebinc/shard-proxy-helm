@@ -1,0 +1,11 @@
+bitcoin-shard-proxy-helm
+Copyright 2026 Lightweb Inc. (https://lightweb.net)
+
+=========================================================================
+
+This repository contains the Helm chart for deploying bitcoin-shard-proxy
+on Kubernetes. The chart packages templates, default values, and CI
+workflows; the application source lives in the bitcoin-shard-proxy
+repository.
+
+=========================================================================

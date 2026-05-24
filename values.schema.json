@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "bitcoin-shard-proxy values",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "replicaCount": { "type": "integer", "minimum": 0 },
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": { "type": "string", "minLength": 1 },
+        "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] },
+        "tag": { "type": "string" }
+      },
+      "required": ["repository", "pullPolicy"]
+    },
+    "networking": {
+      "type": "object",
+      "properties": {
+        "mode": { "type": "string", "enum": ["multus", "host", "unicast"] },
+        "multus": {
+          "type": "object",
+          "properties": {
+            "networkName": { "type": "string" },
+            "namespace": { "type": "string" },
+            "fabricIPv6": { "type": "string" },
+            "interface": { "type": "string" }
+          }
+        },
+        "host": {
+          "type": "object",
+          "properties": {
+            "dnsPolicy": { "type": "string" }
+          }
+        }
+      },
+      "required": ["mode"]
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "udpListenPort": { "type": "integer", "minimum": 0, "maximum": 65535 },
+        "tcpListenPort": { "type": "integer", "minimum": 0, "maximum": 65535 },
+        "egressPort":    { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "shardBits":     { "type": "integer", "minimum": 1, "maximum": 15 },
+        "mcScope":       { "type": "string", "enum": ["link", "site", "org", "global"] },
+        "numWorkers":    { "type": "integer", "minimum": 0 },
+        "fragMtu":       { "type": "integer", "minimum": 0 },
+        "debug":         { "type": "boolean" }
+      }
+    }
+  }
+}

@@ -1,0 +1,53 @@
+name: lint
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.0
+
+      - name: helm lint (defaults)
+        run: helm lint .
+
+      - name: helm lint (strict)
+        run: helm lint . --strict
+
+      - name: helm template (multus default)
+        run: |
+          helm template release-test . \
+            --set networking.multus.fabricIPv6=fd20::21/64 \
+            --debug > /tmp/render-multus.yaml
+          test -s /tmp/render-multus.yaml
+
+      - name: helm template (host network fallback)
+        run: |
+          helm template release-test . \
+            --set networking.mode=host \
+            --debug > /tmp/render-host.yaml
+          test -s /tmp/render-host.yaml
+
+      - name: helm template (servicemonitor + pdb + networkpolicy + hpa enabled)
+        run: |
+          helm template release-test . \
+            --set networking.mode=host \
+            --set metrics.serviceMonitor.enabled=true \
+            --set podDisruptionBudget.enabled=true \
+            --set networkPolicy.enabled=true \
+            --set autoscaling.enabled=true \
+            --debug > /tmp/render-full.yaml
+          test -s /tmp/render-full.yaml

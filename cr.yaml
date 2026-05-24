@@ -1,0 +1,5 @@
+owner: lightwebinc
+git-repo: bitcoin-shard-proxy-helm
+package-path: .cr-release-packages
+skip-existing: true
+sign: false

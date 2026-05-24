@@ -1,0 +1,127 @@
+# Default values for bitcoin-shard-proxy.
+# Every binary flag is exposed under .config; advanced ones empty/disabled by default.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/lightwebinc/bitcoin-shard-proxy
+  pullPolicy: IfNotPresent
+  # Defaults to .Chart.AppVersion when empty.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+
+# Multicast egress requires NET_ADMIN to set IPV6_MULTICAST_IF on raw sockets.
+securityContext:
+  capabilities:
+    add: ["NET_ADMIN"]
+
+# Networking mode:
+#   multus  — primary CNI for control/metrics + macvlan secondary on fabric NIC (default)
+#   host    — hostNetwork: true; single-NIC fallback
+#   unicast — primary CNI only; pure unicast egress (proxy unicast mode is not yet implemented;
+#             chart emits a warning annotation)
+networking:
+  mode: multus
+  multus:
+    networkName: mcast-fabric
+    namespace: bitcoin-mcast
+    # Per-pod fabric IPv6 in CIDR form. Must be unique per pod when replicaCount > 1.
+    fabricIPv6: ""
+    interface: net1
+  host:
+    dnsPolicy: ClusterFirstWithHostNet
+
+# Application configuration. Mirrors every flag in bitcoin-shard-proxy/config/config.go.
+config:
+  listenAddr: "[::]"
+  udpListenPort: 9000
+  tcpListenPort: 0
+  # Comma-separated NIC names for multicast egress. Overridden by networking.multus.interface
+  # when networking.mode=multus.
+  multicastIf: "eth0"
+  egressPort: 9001
+  shardBits: 2
+  mcScope: "site"
+  mcGroupId: "0x000B"
+  # 0 means runtime.NumCPU at startup.
+  numWorkers: 0
+  # BRC-130 path MTU for fragmentation. 0 = disabled.
+  fragMtu: 0
+  drainTimeout: "0s"
+  debug: false
+  metricsAddr: ":9100"
+  instanceId: ""
+  otlpEndpoint: ""
+  otlpInterval: "30s"
+
+service:
+  type: ClusterIP
+  metricsPort: 9100
+
+metrics:
+  enabled: true
+  path: /metrics
+  port: 9100
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+    scrapeTimeout: 10s
+    labels: {}
+    relabelings: []
+    metricRelabelings: []
+
+probes:
+  readiness:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+  liveness:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+priorityClassName: ""
+topologySpreadConstraints: []
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  # maxUnavailable: ""
+
+networkPolicy:
+  enabled: false
+  # ingressFrom is a list of selectors permitted to reach the metrics port.
+  # Each entry is a standard networking.k8s.io/v1 NetworkPolicyPeer.
+  ingressFrom: []
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Extra environment variables (escape hatch for future flags not yet exposed under .config)
+extraEnv: []
+# - name: FOO
+#   value: "bar"

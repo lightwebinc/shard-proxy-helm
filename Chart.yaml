@@ -1,0 +1,26 @@
+apiVersion: v2
+name: bitcoin-shard-proxy
+description: IPv6 multicast frame proxy for the Bitcoin transaction distribution network
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+kubeVersion: ">= 1.27.0-0"
+keywords:
+  - bitcoin
+  - bsv
+  - multicast
+  - brc-124
+  - brc-128
+home: https://github.com/lightwebinc/bitcoin-shard-proxy
+sources:
+  - https://github.com/lightwebinc/bitcoin-shard-proxy
+  - https://github.com/lightwebinc/bitcoin-shard-proxy-helm
+maintainers:
+  - name: lightwebinc
+    url: https://github.com/lightwebinc
+icon: https://raw.githubusercontent.com/lightwebinc/bitcoin-multicast/main/.assets/icon.png
+annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/changes: |
+    - kind: added
+      description: Initial chart scaffold
