@@ -44,6 +44,8 @@
         "egressPort":    { "type": "integer", "minimum": 1, "maximum": 65535 },
         "shardBits":     { "type": "integer", "minimum": 1, "maximum": 15 },
         "mcScope":       { "type": "string", "enum": ["link", "site", "org", "global"] },
+        "sourceMode":    { "type": "string", "enum": ["asm", "ssm"] },
+        "bindSource":    { "type": "string" },
         "numWorkers":    { "type": "integer", "minimum": 0 },
         "fragMtu":       { "type": "integer", "minimum": 0 },
         "debug":         { "type": "boolean" },

@@ -106,6 +106,12 @@ Container env vars rendered from .Values.config plus extraEnv passthrough.
   value: {{ .Values.config.mcScope | quote }}
 - name: MC_GROUP_ID
   value: {{ .Values.config.mcGroupId | quote }}
+- name: SOURCE_MODE
+  value: {{ .Values.config.sourceMode | default "asm" | quote }}
+{{- if .Values.config.bindSource }}
+- name: BIND_SOURCE
+  value: {{ .Values.config.bindSource | quote }}
+{{- end }}
 - name: NUM_WORKERS
   value: {{ .Values.config.numWorkers | quote }}
 - name: FRAG_MTU
