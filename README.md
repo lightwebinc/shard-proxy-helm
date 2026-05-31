@@ -45,6 +45,28 @@ PIM-SSM RPF). `bindSource` renders to `BIND_SOURCE`. See the
 [SSM Support Plan](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/SourceSpecificMulticast/ssm-support-plan.md)
 for fabric prerequisites.
 
+### BRC-137 auto-shard-config (opt-in)
+
+`config.autoShardConfig` exposes the BRC-137 manifest consumer. Off by
+default (`enabled: false`); manual `config.shardBits`/`sourceMode` always
+win. When `enabled: true` the proxy opens a dedicated beacon-receive
+socket and adopts `ShardBits`/`SourceMode` from authoritative pilot
+manifests once `pilotQuorum` distinct announcers agree for the
+hysteresis window.
+
+| Key | Env var | Default | Notes |
+|-----|---------|---------|-------|
+| `enabled` | `MANIFEST_CONSUMER_ENABLED` | `false` | master switch |
+| `bootstrap` | `MANIFEST_BOOTSTRAP` | `optional` | `required` fails closed: no data-plane egress until quorum |
+| `pilotQuorum` | `PILOT_QUORUM` | `2` | min distinct authoritative announcers |
+| `pilotHysteresis` | `PILOT_HYSTERESIS` | `0s` | `0s` ⇒ 2 × AnnounceInterval |
+| `beaconScope` | `MANIFEST_BEACON_SCOPE` | `""` | empty inherits `mcScope` |
+| `beaconPort` | `MANIFEST_BEACON_PORT` | `9001` | matches shard-manifest `-port` |
+| `liveResharding` | `LIVE_RESHARDING` | `false` | `true` = dual-emit bridging; `false` = restart-on-adopt |
+| `bridgingWindow` | `BRIDGING_WINDOW` | `0s` | `0s` ⇒ honour pilot `TransitionEpoch` |
+
+See the [Automatic Shard Configuration Plan](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/AutoShardConfig/auto-shard-config-plan.md).
+
 ## Helm test
 
 ```bash

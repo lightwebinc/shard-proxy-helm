@@ -2,7 +2,7 @@ apiVersion: v2
 name: shard-proxy
 description: IPv6 multicast frame proxy for the Bitcoin transaction distribution network
 type: application
-version: 0.2.0
+version: 0.3.0
 appVersion: "0.1.0"
 kubeVersion: ">= 1.27.0-0"
 keywords:
@@ -24,3 +24,5 @@ annotations:
   artifacthub.io/changes: |
     - kind: added
       description: Initial chart scaffold
+    - kind: added
+      description: config.autoShardConfig keys (BRC-137 manifest consumer)

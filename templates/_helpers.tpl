@@ -144,6 +144,24 @@ Container env vars rendered from .Values.config plus extraEnv passthrough.
   value: {{ .Values.config.txidDedup.redisAddr | quote }}
 {{- end }}
 {{- end }}
+{{- if .Values.config.autoShardConfig }}
+- name: MANIFEST_CONSUMER_ENABLED
+  value: {{ .Values.config.autoShardConfig.enabled | quote }}
+- name: MANIFEST_BOOTSTRAP
+  value: {{ .Values.config.autoShardConfig.bootstrap | quote }}
+- name: PILOT_QUORUM
+  value: {{ .Values.config.autoShardConfig.pilotQuorum | quote }}
+- name: PILOT_HYSTERESIS
+  value: {{ .Values.config.autoShardConfig.pilotHysteresis | quote }}
+- name: MANIFEST_BEACON_SCOPE
+  value: {{ .Values.config.autoShardConfig.beaconScope | quote }}
+- name: MANIFEST_BEACON_PORT
+  value: {{ .Values.config.autoShardConfig.beaconPort | quote }}
+- name: LIVE_RESHARDING
+  value: {{ .Values.config.autoShardConfig.liveResharding | quote }}
+- name: BRIDGING_WINDOW
+  value: {{ .Values.config.autoShardConfig.bridgingWindow | quote }}
+{{- end }}
 {{- with .Values.extraEnv }}
 {{ toYaml . }}
 {{- end }}

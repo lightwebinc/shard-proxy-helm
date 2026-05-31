@@ -57,6 +57,19 @@
             "prefix":    { "type": "string" },
             "ttl":       { "type": "string" }
           }
+        },
+        "autoShardConfig": {
+          "type": "object",
+          "properties": {
+            "enabled":         { "type": "boolean" },
+            "bootstrap":       { "type": "string", "enum": ["optional", "required"] },
+            "pilotQuorum":     { "type": "integer", "minimum": 1 },
+            "pilotHysteresis": { "type": "string" },
+            "beaconScope":     { "type": "string", "enum": ["", "link", "site", "org", "global"] },
+            "beaconPort":      { "type": "integer", "minimum": 1, "maximum": 65535 },
+            "liveResharding":  { "type": "boolean" },
+            "bridgingWindow":  { "type": "string" }
+          }
         }
       }
     }
