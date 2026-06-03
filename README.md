@@ -35,6 +35,24 @@ See [`values.yaml`](values.yaml) for the full annotated reference. Every flag ac
 
 The chart includes [`values.schema.json`](values.schema.json) — `helm install` rejects out-of-range `shardBits`, invalid `mcScope`, or invalid `networking.mode` before reaching the cluster.
 
+### Ingress TxID dedup backend
+
+`config.txidDedup` controls the two-tier ingress dedup gate. Tier-1 is the
+always-on in-process LRU; tier-2 is the modular `shard-common/cache` backend
+selected by `config.txidDedup.backend` (`redis` | `aerospike` | `memory` |
+`none`; empty infers `redis` when `redisAddr` is set, else `none`).
+
+| Backend | Keys | Notes |
+|---------|------|-------|
+| `redis` | `txidDedup.redisAddr` | Redis/Valkey/Dragonfly |
+| `aerospike` | `txidDedup.aerospikeHosts` (+ `aerospikeNamespace`, `aerospikeSet`) | namespace must be provisioned; TTL floor 1s |
+
+`txidDedup.prefix` MUST match the local listener's `ingressSet.prefix`. When
+setting comma-separated `aerospikeHosts` via `--set`, escape the commas
+(`--set-string 'config.txidDedup.aerospikeHosts=a:3000\,b:3000'`) or use a
+values file. See
+[`bsv-multicast/docs/ModularCacheBackend/`](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/ModularCacheBackend/modular-cache-backend.md).
+
 ### SSM (Source-Specific Multicast)
 
 `config.sourceMode` (`asm` default, `ssm` opt-in) renders to the

@@ -53,9 +53,13 @@
           "type": "object",
           "properties": {
             "localCap":  { "type": "integer", "minimum": 0 },
+            "backend":   { "type": "string", "enum": ["", "memory", "redis", "aerospike", "none"] },
             "redisAddr": { "type": "string" },
             "prefix":    { "type": "string" },
-            "ttl":       { "type": "string" }
+            "ttl":       { "type": "string" },
+            "aerospikeHosts":     { "type": "string" },
+            "aerospikeNamespace": { "type": "string" },
+            "aerospikeSet":       { "type": "string" }
           }
         },
         "autoShardConfig": {

@@ -139,9 +139,21 @@ Container env vars rendered from .Values.config plus extraEnv passthrough.
   value: {{ .Values.config.txidDedup.prefix | quote }}
 - name: TXID_DEDUP_TTL
   value: {{ .Values.config.txidDedup.ttl | quote }}
+{{- if .Values.config.txidDedup.backend }}
+- name: TXID_DEDUP_BACKEND
+  value: {{ .Values.config.txidDedup.backend | quote }}
+{{- end }}
 {{- if .Values.config.txidDedup.redisAddr }}
 - name: TXID_DEDUP_REDIS_ADDR
   value: {{ .Values.config.txidDedup.redisAddr | quote }}
+{{- end }}
+{{- if .Values.config.txidDedup.aerospikeHosts }}
+- name: TXID_DEDUP_AEROSPIKE_HOSTS
+  value: {{ .Values.config.txidDedup.aerospikeHosts | quote }}
+- name: TXID_DEDUP_AEROSPIKE_NAMESPACE
+  value: {{ .Values.config.txidDedup.aerospikeNamespace | quote }}
+- name: TXID_DEDUP_AEROSPIKE_SET
+  value: {{ .Values.config.txidDedup.aerospikeSet | quote }}
 {{- end }}
 {{- end }}
 {{- if .Values.config.autoShardConfig }}
