@@ -49,6 +49,9 @@
         "numWorkers":    { "type": "integer", "minimum": 0 },
         "fragMtu":       { "type": "integer", "minimum": 0 },
         "debug":         { "type": "boolean" },
+        "logFormat":     { "type": "string", "enum": ["text", "json"] },
+        "logLevel":      { "type": "string", "enum": ["debug", "info", "warn", "error"] },
+        "traceSampling": { "type": "number", "minimum": 0, "maximum": 1 },
         "txidDedup": {
           "type": "object",
           "properties": {

@@ -33,7 +33,17 @@ See the [composition spec](https://github.com/lightwebinc/bsv-multicast/blob/mai
 
 See [`values.yaml`](values.yaml) for the full annotated reference. Every flag accepted by the proxy binary is exposed under `.config`; cluster-shape knobs (replicas, autoscaling, PDB, NetworkPolicy, ServiceMonitor) live at the top level.
 
-The chart includes [`values.schema.json`](values.schema.json) — `helm install` rejects out-of-range `shardBits`, invalid `mcScope`, or invalid `networking.mode` before reaching the cluster.
+The chart includes [`values.schema.json`](values.schema.json) — `helm install` rejects out-of-range `shardBits`, invalid `mcScope`, invalid `networking.mode`, an invalid `logFormat` (`text`|`json`), `logLevel` (`debug`|`info`|`warn`|`error`), or out-of-range `traceSampling` (`0`–`1`) before reaching the cluster.
+
+### Logging & tracing
+
+`config.logFormat` (`text` default | `json`) → `LOG_FORMAT`, `config.logLevel`
+(`info`) → `LOG_LEVEL`, and `config.traceSampling` (`0`) → `TRACE_SAMPLING`.
+Set `logFormat: json` for one-JSON-object-per-line stdout suitable for the
+node-local collector; the log level is also runtime-togglable via `POST /loglevel`
+on the metrics port and SIGHUP. `traceSampling > 0` (with `config.otlpEndpoint`)
+enables control-plane traces. See the
+[Unified Logging Plan](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/UnifiedLogging/unified-logging-plan.md).
 
 ### Ingress TxID dedup backend
 

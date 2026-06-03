@@ -120,6 +120,14 @@ Container env vars rendered from .Values.config plus extraEnv passthrough.
   value: {{ .Values.config.drainTimeout | quote }}
 - name: DEBUG
   value: {{ .Values.config.debug | quote }}
+- name: LOG_FORMAT
+  value: {{ .Values.config.logFormat | quote }}
+- name: LOG_LEVEL
+  value: {{ .Values.config.logLevel | quote }}
+{{- if .Values.config.traceSampling }}
+- name: TRACE_SAMPLING
+  value: {{ .Values.config.traceSampling | quote }}
+{{- end }}
 - name: METRICS_ADDR
   value: {{ .Values.config.metricsAddr | quote }}
 {{- if .Values.config.instanceId }}
