@@ -43,7 +43,7 @@ Set `logFormat: json` for one-JSON-object-per-line stdout suitable for the
 node-local collector; the log level is also runtime-togglable via `POST /loglevel`
 on the metrics port and SIGHUP. `traceSampling > 0` (with `config.otlpEndpoint`)
 enables control-plane traces. See the
-[Unified Logging Plan](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/UnifiedLogging/unified-logging-plan.md).
+[Unified Logging Plan](https://github.com/lightwebinc/shard-common/blob/main/docs/logging.md).
 
 ### Ingress TxID dedup backend
 
@@ -61,7 +61,7 @@ selected by `config.txidDedup.backend` (`redis` | `aerospike` | `memory` |
 setting comma-separated `aerospikeHosts` via `--set`, escape the commas
 (`--set-string 'config.txidDedup.aerospikeHosts=a:3000\,b:3000'`) or use a
 values file. See
-[`bsv-multicast/docs/ModularCacheBackend/`](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/ModularCacheBackend/modular-cache-backend.md).
+[`shard-common/docs/cache-backend.md`](https://github.com/lightwebinc/shard-common/blob/main/docs/cache-backend.md).
 
 ### SSM (Source-Specific Multicast)
 
