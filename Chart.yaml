@@ -25,4 +25,4 @@ annotations:
     - kind: added
       description: Initial chart scaffold
     - kind: added
-      description: config.autoShardConfig keys (BRC-137 manifest consumer)
+      description: config.autoShardConfig keys (BRC-139 manifest consumer)

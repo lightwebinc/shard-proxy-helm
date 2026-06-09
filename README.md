@@ -29,7 +29,7 @@ helm install proxy . -n bsv-mcast --create-namespace \
 | `host` | `hostNetwork: true`; `MULTICAST_IF` resolves to the host NIC named by `config.multicastIf`. Single-NIC fallback. |
 | `unicast` | Reserved for a future proxy `EGRESS_MODE=unicast-list` release. The chart renders pods but emits a `helm.sh/chart-warnings` annotation. |
 
-See the [composition spec](https://github.com/lightwebinc/bsv-multicast/blob/main/containerization/composition-spec.md) for wiring proxy + listener + retry-endpoint via Helmfile / ArgoCD / Terraform / plain Helm.
+See [multicast-kube-infra](https://github.com/lightwebinc/multicast-kube-infra) for wiring proxy + listener + retry-endpoint via Helmfile / ArgoCD / Terraform / plain Helm.
 
 ## Values reference
 
@@ -72,12 +72,12 @@ values file. See
 per-pod IPv6 from your Multus/Whereabouts allocation — each replica
 MUST hold a distinct address (anycast/ECMP-shared sources break
 PIM-SSM RPF). `bindSource` renders to `BIND_SOURCE`. See the
-[SSM Support Plan](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/SourceSpecificMulticast/ssm-support-plan.md)
+[SSM Support Plan](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md#source-specific-multicast-ssm)
 for fabric prerequisites.
 
-### BRC-137 auto-shard-config (opt-in)
+### BRC-139 auto-shard-config (opt-in)
 
-`config.autoShardConfig` exposes the BRC-137 manifest consumer. Off by
+`config.autoShardConfig` exposes the BRC-139 manifest consumer. Off by
 default (`enabled: false`); manual `config.shardBits`/`sourceMode` always
 win. When `enabled: true` the proxy opens a dedicated beacon-receive
 socket and adopts `ShardBits`/`SourceMode` from authoritative pilot
@@ -95,7 +95,7 @@ hysteresis window.
 | `liveResharding` | `LIVE_RESHARDING` | `false` | `true` = dual-emit bridging; `false` = restart-on-adopt |
 | `bridgingWindow` | `BRIDGING_WINDOW` | `0s` | `0s` ⇒ honour pilot `TransitionEpoch` |
 
-See the [Automatic Shard Configuration Plan](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/AutoShardConfig/auto-shard-config-plan.md).
+See the [Automatic Shard Configuration Plan](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md#automatic-shard-configuration).
 
 ## Helm test
 
