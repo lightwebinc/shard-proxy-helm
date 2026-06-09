@@ -1,12 +1,27 @@
 # Default values for shard-proxy.
 # Every binary flag is exposed under .config; advanced ones empty/disabled by default.
 
+# HA NOTE: the proxy is the ingress datapath. replicaCount=1 is a single point of
+# failure — a pod restart drops ingress until it is rescheduled. The proxy holds no
+# shared replicated state, so HA is achieved at the network layer, not by raising
+# replicaCount blindly: front replicas with external BGP/ECMP anycast (or a per-pod
+# fabric IPv6, see networking below) so traffic fails over. Raising replicaCount
+# without anycast just creates N independent ingress points, not a failover pair.
 replicaCount: 1
+
+# Pod termination grace. MUST be >= config.drainTimeout, else Kubernetes SIGKILLs the
+# proxy mid-drain and downstream listeners see an unrecoverable gap. Empty = cluster
+# default (30s). Raise in lockstep with drainTimeout.
+terminationGracePeriodSeconds: 30
 
 image:
   repository: ghcr.io/lightwebinc/shard-proxy
+  # IfNotPresent is correct for the default immutable tag below. FOOTGUN: if you
+  # override tag with a MUTABLE tag (e.g. "latest" / "main"), a rescheduled pod keeps
+  # the stale cached image — set pullPolicy: Always whenever you use a mutable tag.
   pullPolicy: IfNotPresent
-  # Defaults to .Chart.AppVersion when empty.
+  # Defaults to .Chart.AppVersion when empty — so Chart.yaml appVersion MUST track the
+  # actually-released binary, or `tag: ""` silently pulls the wrong (old) image.
   tag: ""
 
 imagePullSecrets: []
@@ -20,7 +35,16 @@ serviceAccount:
 
 podAnnotations: {}
 podLabels: {}
-podSecurityContext: {}
+# Matches the distroless/static:nonroot image (uid 65532). Enforces nonroot even if
+# the image is overridden. NET_ADMIN is granted below at the container level, which is
+# compatible with running as nonroot.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
 
 # Multicast egress requires NET_ADMIN to set IPV6_MULTICAST_IF on raw sockets.
 securityContext:
@@ -140,7 +164,17 @@ probes:
     timeoutSeconds: 5
     failureThreshold: 3
 
-resources: {}
+# Datapath component (recvmmsg/sendmmsg packet loop, ~440k tx/s measured).
+# CPU-bound under load — these are conservative starting points; tune limits
+# upward against your own throughput benchmark before high-rate production use.
+# Leaving this empty ({}) yields BestEffort QoS and no admission control.
+resources:
+  requests:
+    cpu: 500m
+    memory: 256Mi
+  limits:
+    cpu: "2"
+    memory: 512Mi
 nodeSelector: {}
 tolerations: []
 affinity: {}

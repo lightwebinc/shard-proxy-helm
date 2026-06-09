@@ -29,6 +29,9 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      {{- with .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ . }}
+      {{- end }}
       serviceAccountName: {{ include "shard-proxy.serviceAccountName" . }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
