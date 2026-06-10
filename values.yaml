@@ -20,8 +20,8 @@ image:
   # override tag with a MUTABLE tag (e.g. "latest" / "main"), a rescheduled pod keeps
   # the stale cached image — set pullPolicy: Always whenever you use a mutable tag.
   pullPolicy: IfNotPresent
-  # Defaults to .Chart.AppVersion when empty — so Chart.yaml appVersion MUST track the
-  # actually-released binary, or `tag: ""` silently pulls the wrong (old) image.
+  # Defaults to .Chart.AppVersion when empty — appVersion must equal a PUBLISHED
+  # ghcr image tag (see the contract note in Chart.yaml), or `tag: ""` fails to pull.
   tag: ""
 
 imagePullSecrets: []

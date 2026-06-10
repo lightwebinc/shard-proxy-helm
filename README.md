@@ -8,12 +8,12 @@ This repository packages templates, default values, JSON Schema validation, and 
 
 ## Install
 
-> The chart references `ghcr.io/lightwebinc/shard-proxy:<appVersion>`. Until the corresponding image is published from the application repo, `helm install` will succeed in rendering but pods will `ImagePullBackOff`.
+> The chart references `ghcr.io/lightwebinc/shard-proxy:<appVersion>` — `appVersion` always tracks a published image tag (see the contract note in [`Chart.yaml`](Chart.yaml)).
 
 ```bash
 # OCI registry
 helm install proxy oci://ghcr.io/lightwebinc/charts/shard-proxy \
-  --version 0.1.0 -n bsv-mcast --create-namespace \
+  --version 0.3.2 -n bsv-mcast --create-namespace \
   --set networking.multus.fabricIPv6=fd20::21/64
 
 # Or from a local clone
@@ -36,6 +36,10 @@ See [multicast-kube-infra](https://github.com/lightwebinc/multicast-kube-infra) 
 See [`values.yaml`](values.yaml) for the full annotated reference. Every flag accepted by the proxy binary is exposed under `.config`; cluster-shape knobs (replicas, autoscaling, PDB, NetworkPolicy, ServiceMonitor) live at the top level.
 
 The chart includes [`values.schema.json`](values.schema.json) — `helm install` rejects out-of-range `shardBits`, invalid `mcScope`, invalid `networking.mode`, an invalid `logFormat` (`text`|`json`), `logLevel` (`debug`|`info`|`warn`|`error`), or out-of-range `traceSampling` (`0`–`1`) before reaching the cluster.
+
+### Pod defaults (v0.3.2+)
+
+The chart ships hardened pod-level defaults: `resources` requests/limits (CPU-bound datapath — tune against your own throughput benchmark), a nonroot `podSecurityContext` (uid 65532, seccomp `RuntimeDefault`, matching the distroless image), and `terminationGracePeriodSeconds: 30` — keep it `>= config.drainTimeout` or Kubernetes will SIGKILL the proxy mid-drain. Single-replica HA caveats are documented inline at `replicaCount` in [`values.yaml`](values.yaml).
 
 ### Logging & tracing
 
