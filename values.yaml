@@ -72,6 +72,19 @@ config:
   listenAddr: "[::]"
   udpListenPort: 8725
   tcpListenPort: 0
+
+  # Miner-tier ingress gate. The user ports above (8725 / tcp) are
+  # transaction-only: BRC-131 block, BRC-133 coinbase, and BRC-132 subtree
+  # data frames are dropped there. Those privileged frames may only enter
+  # through the miner ingress below, which you expose to miner-tier peers
+  # alone (restrict via networkPolicy.minerIngressFrom / firewall). Leave the
+  # miner ports at 0 to ingest transactions only.
+  # See bsv-multicast/DESIGN.md#ingress-authorization-miner-tier-gate.
+  minerListenPort: 0      # MINER_LISTEN_PORT — UDP miner ingress (privileged frames); 0 = disabled
+  minerTcpListenPort: 0   # MINER_TCP_LISTEN_PORT — TCP miner ingress; 0 = disabled
+  # txAcceptPrivileged=true reverts the user port to legacy accept-all (single
+  # port ingests everything). Default false = user port is transaction-only.
+  txAcceptPrivileged: false
   # Comma-separated NIC names for multicast egress. Overridden by networking.multus.interface
   # when networking.mode=multus.
   multicastIf: "eth0"
@@ -191,6 +204,14 @@ networkPolicy:
   # ingressFrom is a list of selectors permitted to reach the metrics port.
   # Each entry is a standard networking.k8s.io/v1 NetworkPolicyPeer.
   ingressFrom: []
+  # minerIngressFrom restricts who may reach the miner ingress ports
+  # (config.minerListenPort / minerTcpListenPort), which accept privileged
+  # block/coinbase/subtree-data frames. Empty + miner ports set ⇒ the policy
+  # admits no miner peers (fail-closed) so an unset allowlist cannot silently
+  # expose the privileged path. NOTE: this governs the default pod network
+  # only; on a Multus/host-network multicast fabric the real source
+  # restriction is the fabric firewall / provider ACL, not this policy.
+  minerIngressFrom: []
 
 autoscaling:
   enabled: false

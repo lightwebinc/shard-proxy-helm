@@ -51,6 +51,23 @@ on the metrics port and SIGHUP. `traceSampling > 0` (with `config.otlpEndpoint`)
 enables control-plane traces. See the
 [Unified Logging Plan](https://github.com/lightwebinc/shard-common/blob/main/docs/logging.md).
 
+### Miner-tier ingress gate
+
+The user ingress ports (`config.udpListenPort` 8725 / `config.tcpListenPort`)
+are transaction-only: BRC-131 block, BRC-133 coinbase, and BRC-132 subtree
+data frames are dropped there (counted as `bsp_privileged_frame_rejected_total`).
+Those privileged frames may only enter through a separate miner ingress —
+`config.minerListenPort` (UDP) / `config.minerTcpListenPort` (TCP). Leaving both
+at `0` means the proxy ingests transactions only.
+
+Expose the miner ports to miner-tier peers alone: set
+`networkPolicy.minerIngressFrom` (fail-closed — an empty list with a miner port
+set admits no peers). On a Multus/host-network multicast fabric the binding
+source restriction is enforced at the fabric firewall / provider ACL, not the
+pod-network `NetworkPolicy`. `config.txAcceptPrivileged: true` reverts the user
+port to legacy accept-all for collapsed/single-port nodes. See
+[DESIGN.md § Ingress Authorization](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md#ingress-authorization-miner-tier-gate).
+
 ### Ingress TxID dedup backend
 
 `config.txidDedup` controls the two-tier ingress dedup gate. Tier-1 is the
