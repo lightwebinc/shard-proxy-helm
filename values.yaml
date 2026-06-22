@@ -70,7 +70,7 @@ networking:
 # Application configuration. Mirrors every flag in shard-proxy/config/config.go.
 config:
   listenAddr: "[::]"
-  udpListenPort: 9000
+  udpListenPort: 8725
   tcpListenPort: 0
   # Comma-separated NIC names for multicast egress. Overridden by networking.multus.interface
   # when networking.mode=multus.
