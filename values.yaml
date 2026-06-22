@@ -94,12 +94,12 @@ config:
   mcGroupId: "0x000B"
 
   # SSM (RFC 4607). See bsv-multicast/docs/SourceSpecificMulticast.
-  # sourceMode: "asm" (default; FF0x scope) or "ssm" (FF3x scope; PIM-SSM required in fabric).
+  # sourceMode: "ssm" (default, first-class; FF3x, PIM-SSM) or "asm" (FF0x; lab/dev fallback).
   # bindSource: required when sourceMode=ssm. MUST be unique per replica
   # (anycast across replicas breaks PIM-SSM RPF). Set to the per-pod
   # IPv6 from your Multus/Whereabouts allocation, e.g.
   #   networking.multus.staticIPs[i] without the /prefix suffix.
-  sourceMode: "asm"
+  sourceMode: "ssm"
   bindSource: ""
   # 0 means runtime.NumCPU at startup.
   numWorkers: 0
