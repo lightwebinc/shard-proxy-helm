@@ -31,6 +31,23 @@ helm install proxy . -n bsv-mcast --create-namespace \
 
 See [multicast-kube-infra](https://github.com/lightwebinc/multicast-kube-infra) for wiring proxy + listener + retry-endpoint via Helmfile / ArgoCD / Terraform / plain Helm.
 
+### BGP-anycast ingress (host mode)
+
+For HA ingress, run the proxy as a `hostNetwork` pod on the tainted data-plane pool and front the replicas with **external BGP/ECMP anycast** — every node binds the same anycast VIP, senders reach the nearest, and traffic re-homes on failure. Worked example: [`examples/anycast-ingress.yaml`](examples/anycast-ingress.yaml).
+
+```sh
+helm install sp . -f examples/anycast-ingress.yaml
+```
+
+Division of labour (the chart stays out of the hot path):
+
+| Concern | Owner |
+|---|---|
+| Anycast VIP on `lo`, FRR/BIRD announce, health-gated withdraw | **host** (`ingress-infra` networking+bgp roles; `fleet` `ingress:` block) |
+| Bind the VIP, serve `/healthz` + `/readyz` on `:9100` | **this chart** (`networking.mode: host`, `config.listenAddr: "[::]"`) |
+
+The proxy binds `[::]`, which covers the host-owned VIP — the chart never runs BGP or manages the VIP, so k8s carries no ingress packets through the pod network. For **graceful drain**, point the host speaker at `/readyz` (`fleet ingress.health_path: /readyz`): on SIGTERM the proxy drains for `config.drainTimeout` while readiness is false, so the VIP withdraws and senders re-home **before** the pod stops. See [1bsv-ops production doc 04 (I1)](https://github.com/lightwebinc/1bsv-ops/blob/main/docs/production/04-edge-ingress-orchestration.md).
+
 ## Values reference
 
 See [`values.yaml`](values.yaml) for the full annotated reference. Every flag accepted by the proxy binary is exposed under `.config`; cluster-shape knobs (replicas, autoscaling, PDB, NetworkPolicy, ServiceMonitor) live at the top level.
