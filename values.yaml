@@ -192,6 +192,10 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 priorityClassName: ""
+# Perf pool (W2): attach a RuntimeClass whose containerd handler raises
+# RLIMIT_MEMLOCK (AF_XDP pinned UMEM on kernels < 5.11; CAP_BPF + memcg makes it
+# unnecessary on >= 5.11). Empty = cluster default runtime. See examples/perf-dataplane.yaml.
+runtimeClassName: ""
 topologySpreadConstraints: []
 
 podDisruptionBudget:

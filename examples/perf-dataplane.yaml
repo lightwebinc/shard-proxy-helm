@@ -1,0 +1,48 @@
+# Data-plane PERF deployment (1bsv-ops production doc 04, "W2").
+#
+#   helm install sp . -f examples/perf-dataplane.yaml
+#
+# Guaranteed-QoS AF_XDP/SR-IOV pod on the tainted, NUMA-tuned perf pool. Requires:
+#   - the node on the kubelet `dataplane` worker profile (CPU Manager static +
+#     Topology single-numa-node + Memory Static + reserved cores) — k0s-config;
+#   - hugepages pre-allocated on the host (perf-tuning role);
+#   - the SR-IOV device plugin advertising 1bsv.net/mcast_vf (platform/sriov) —
+#     HARDWARE-GATED: needs real SR-IOV PFs.
+# Throughput/zero-copy is validated on a real perf node (xhost-perf-rig), NOT in
+# the functional lab. Compose with examples/anycast-ingress.yaml for HA ingress.
+
+# VF gives zero-copy (macvlan does not): bind the SR-IOV NAD as the fabric NIC.
+networking:
+  mode: multus
+  multus:
+    networkName: mcast-vf
+    namespace: bsv-mcast
+    interface: net1
+
+# AF_XDP needs CAP_BPF (+ NET_ADMIN for the egress socket); CAP_PERFMON for maps.
+securityContext:
+  capabilities:
+    add: ["NET_ADMIN", "BPF", "PERFMON"]
+
+# Integer cpu + equal requests/limits + hugepages ⇒ Guaranteed QoS ⇒ exclusive
+# NUMA-local cores from CPU Manager static. Size cpu to the isolated core count.
+resources:
+  requests:
+    cpu: "4"
+    memory: 2Gi
+    hugepages-2Mi: 512Mi
+  limits:
+    cpu: "4"
+    memory: 2Gi
+    hugepages-2Mi: 512Mi
+
+# Land only on the perf pool (decision 4); tolerate its taint.
+nodeSelector:
+  node-role/dataplane: ""
+tolerations:
+  - key: dataplane
+    operator: Exists
+    effect: NoSchedule
+
+# Optional: a RuntimeClass that raises RLIMIT_MEMLOCK for kernels < 5.11.
+# runtimeClassName: memlock-unlimited
