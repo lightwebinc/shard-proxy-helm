@@ -105,7 +105,7 @@ Container env vars rendered from .Values.config plus extraEnv passthrough.
 - name: MULTICAST_IF
   value: {{ include "shard-proxy.multicastIf" . | quote }}
 {{- if kindIs "bool" .Values.config.egressMulticastLoop }}
-- name: IPV6_MULTICAST_LOOP
+- name: EGRESS_MULTICAST_LOOP
   value: {{ .Values.config.egressMulticastLoop | quote }}
 {{- end }}
 {{- if .Values.config.egressHoplimit }}

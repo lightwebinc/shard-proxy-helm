@@ -88,7 +88,8 @@ config:
   # Comma-separated NIC names for multicast egress. Overridden by networking.multus.interface
   # when networking.mode=multus.
   multicastIf: "eth0"
-  # egressMulticastLoop: IPV6_MULTICAST_LOOP. REQUIRED true on a COLLAPSED node where
+  # egressMulticastLoop -> EGRESS_MULTICAST_LOOP (sets the IPV6_MULTICAST_LOOP socket
+  # option). REQUIRED true on a COLLAPSED node where
   # the proxy and a co-resident listener share the host: the kernel only forwards the
   # proxy's locally-emitted multicast to the listener's iface (and the fabric tunnels)
   # when loop is on. null inherits the binary default (off). egressHoplimit raises the
