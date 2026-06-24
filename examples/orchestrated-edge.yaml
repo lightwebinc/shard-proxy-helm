@@ -12,7 +12,16 @@ networking:
     dnsPolicy: ClusterFirstWithHostNet
 
 config:
-  metricsAddr: ":9100"
+  # NOT :9100 — the Prometheus node-exporter DaemonSet owns hostPort 9100 on every
+  # k8s node, and a hostNetwork pod binding 9100 would collide (FailedScheduling /
+  # bind conflict). The bind addr (env) and the declared port (below) must agree.
+  metricsAddr: ":9110"
+
+# The declared container/host port + Service/scrape port must match metricsAddr.
+service:
+  metricsPort: 9110
+metrics:
+  port: 9110
   # Authoritatively stamp the BRC-129 HashKey from the observed per-consumer source
   # IP (own-traffic exclusion). true here because the pod sees real source addresses
   # (hostNetwork, no source-rewriting LB in front).
