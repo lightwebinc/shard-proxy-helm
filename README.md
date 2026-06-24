@@ -48,6 +48,28 @@ Division of labour (the chart stays out of the hot path):
 
 The proxy binds `[::]`, which covers the host-owned VIP — the chart never runs BGP or manages the VIP, so k8s carries no ingress packets through the pod network. For **graceful drain**, point the host speaker at `/readyz` (`fleet ingress.health_path: /readyz`): on SIGTERM the proxy drains for `config.drainTimeout` while readiness is false, so the VIP withdraws and senders re-home **before** the pod stops. See [1bsv-ops production doc 04 (I1)](https://github.com/lightwebinc/1bsv-ops/blob/main/docs/production/04-edge-ingress-orchestration.md).
 
+### Orchestrated edge (W2)
+
+On a fleet-orchestrated collapsed edge the proxy runs as a `hostNetwork` pod on a k0s worker, sharing the host with a co-resident listener and the kernel ip6gre + `mc-router` fabric (configured by the `integrated-infra` roles). Worked example: [`examples/orchestrated-edge.yaml`](examples/orchestrated-edge.yaml).
+
+```sh
+helm install shard-proxy-us . -f examples/orchestrated-edge.yaml \
+  --set nodeSelector."topology\.kubernetes\.io/region"=us
+```
+
+Collapsed-node config keys:
+
+| Key | Env var | Default | Notes |
+|-----|---------|---------|-------|
+| `stampSource` | `STAMP_SOURCE` | `true` (binary) | Stamp the BRC-129 own-traffic-exclusion HashKey from the **observed per-consumer source IP**. `true` here because the `hostNetwork` pod sees real source addresses. Set `false` ONLY behind a source-rewriting LB. `null` inherits the binary default. |
+| `egressMulticastLoop` | `EGRESS_MULTICAST_LOOP` | `null` (off) | **REQUIRED `true` on a collapsed node**: the kernel MFC only forwards the proxy's locally-emitted multicast to the co-resident listener (and the fabric tunnels) when `IPV6_MULTICAST_LOOP` is on. |
+| `egressHoplimit` | `EGRESS_HOPLIMIT` | `1` | Raise the multicast hop limit — the default `1` dies on the first mesh/tunnel hop, so inter-region delivery needs a higher value (e.g. `16`). |
+
+Two host facts the preset also sets:
+
+- **`NET_RAW` capability** — raw multicast emit on a collapsed node needs `NET_RAW` in addition to `NET_ADMIN`; the preset adds both under `securityContext.capabilities`.
+- **Metrics on `:9110`, not `:9100`** — the Prometheus node-exporter DaemonSet owns hostPort `9100` on every k8s node, so a `hostNetwork` proxy binding `9100` collides. The preset moves `config.metricsAddr`, `service.metricsPort`, and `metrics.port` to `9110` in lockstep.
+
 ## Values reference
 
 See [`values.yaml`](values.yaml) for the full annotated reference. Every flag accepted by the proxy binary is exposed under `.config`; cluster-shape knobs (replicas, autoscaling, PDB, NetworkPolicy, ServiceMonitor) live at the top level.

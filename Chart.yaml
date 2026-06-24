@@ -30,3 +30,5 @@ annotations:
       description: Initial chart scaffold
     - kind: added
       description: config.autoShardConfig keys (BRC-139 manifest consumer)
+    - kind: added
+      description: Orchestrated-edge keys (config.stampSource, config.egressMulticastLoop, config.egressHoplimit) + orchestrated-edge example

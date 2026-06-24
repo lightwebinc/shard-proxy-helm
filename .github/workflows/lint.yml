@@ -51,3 +51,12 @@ jobs:
             --set autoscaling.enabled=true \
             --debug > /tmp/render-full.yaml
           test -s /tmp/render-full.yaml
+
+      - name: helm template (examples — catch drift)
+        run: |
+          for f in examples/*.yaml; do
+            echo "::group::$f"
+            helm template release-test . -f "$f" --debug > "/tmp/render-$(basename "$f")"
+            test -s "/tmp/render-$(basename "$f")"
+            echo "::endgroup::"
+          done
