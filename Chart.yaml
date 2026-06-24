@@ -2,7 +2,7 @@ apiVersion: v2
 name: shard-proxy
 description: IPv6 multicast frame proxy for the Bitcoin transaction distribution network
 type: application
-version: 0.3.5
+version: 0.3.6
 # appVersion MUST equal a tag published on ghcr.io/lightwebinc/shard-proxy
 # (the chart's tag:"" default pulls this). Images are published manually via the
 # binary repo's image-publish.yml workflow; bump appVersion ONLY in lockstep with

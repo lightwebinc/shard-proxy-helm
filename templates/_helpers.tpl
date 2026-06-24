@@ -104,6 +104,14 @@ Container env vars rendered from .Values.config plus extraEnv passthrough.
   value: {{ .Values.config.txAcceptPrivileged | default false | quote }}
 - name: MULTICAST_IF
   value: {{ include "shard-proxy.multicastIf" . | quote }}
+{{- if kindIs "bool" .Values.config.egressMulticastLoop }}
+- name: IPV6_MULTICAST_LOOP
+  value: {{ .Values.config.egressMulticastLoop | quote }}
+{{- end }}
+{{- if .Values.config.egressHoplimit }}
+- name: EGRESS_HOPLIMIT
+  value: {{ .Values.config.egressHoplimit | quote }}
+{{- end }}
 - name: EGRESS_PORT
   value: {{ .Values.config.egressPort | quote }}
 - name: SHARD_BITS

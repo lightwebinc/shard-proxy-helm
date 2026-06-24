@@ -22,6 +22,13 @@ service:
   metricsPort: 9110
 metrics:
   port: 9110
+
+# Collapsed-node multicast egress: loop ON so the kernel forwards the locally-emitted
+# multicast to the co-resident listener + fabric tunnels; raised hoplimit for tunnels.
+# Raw multicast emit needs NET_RAW in addition to NET_ADMIN.
+securityContext:
+  capabilities:
+    add: [NET_ADMIN, NET_RAW]
   # Authoritatively stamp the BRC-129 HashKey from the observed per-consumer source
   # IP (own-traffic exclusion). true here because the pod sees real source addresses
   # (hostNetwork, no source-rewriting LB in front).
