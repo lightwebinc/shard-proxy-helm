@@ -1,0 +1,29 @@
+# Orchestrated edge preset (W2): shard-proxy as a hostNetwork pod on a fleet-
+# provisioned k0s worker. The host fabric (ip6gre + mc-router) is configured by the
+# integrated-infra roles; the pod binds it directly via the host netns. Pin per
+# region with the topology label the k0s-worker role applies, and tolerate the
+# data-plane taint so the pod schedules onto the fenced edge nodes.
+#
+#   helm install shard-proxy-us . -f examples/orchestrated-edge.yaml \
+#     --set nodeSelector."topology\.kubernetes\.io/region"=us
+networking:
+  mode: host
+  host:
+    dnsPolicy: ClusterFirstWithHostNet
+
+config:
+  metricsAddr: ":9100"
+  # Authoritatively stamp the BRC-129 HashKey from the observed per-consumer source
+  # IP (own-traffic exclusion). true here because the pod sees real source addresses
+  # (hostNetwork, no source-rewriting LB in front).
+  stampSource: true
+
+# One pod per region; the k0s-worker role labels nodes topology.kubernetes.io/region.
+nodeSelector:
+  topology.kubernetes.io/region: us
+
+# The k0s-worker role taints edge nodes dataplane=true:NoSchedule.
+tolerations:
+  - key: dataplane
+    operator: Exists
+    effect: NoSchedule
