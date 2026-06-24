@@ -128,6 +128,10 @@ config:
   logLevel: "info"    # debug|info|warn|error; runtime-togglable via POST /loglevel + SIGHUP
   traceSampling: 0    # 0..1 trace head sampling (0 = off; exports via otlpEndpoint; control-plane only)
   metricsAddr: ":9100"
+  # stampSource: stamp the BRC-129 HashKey from the OBSERVED per-consumer source IP
+  # (authoritative own-traffic exclusion). Leave null to inherit the binary default
+  # (true); set false ONLY when a source-rewriting LB sits in front of the proxy.
+  stampSource: null
   instanceId: ""
   otlpEndpoint: ""
   otlpInterval: "30s"

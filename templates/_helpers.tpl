@@ -136,6 +136,10 @@ Container env vars rendered from .Values.config plus extraEnv passthrough.
 {{- end }}
 - name: METRICS_ADDR
   value: {{ .Values.config.metricsAddr | quote }}
+{{- if kindIs "bool" .Values.config.stampSource }}
+- name: STAMP_SOURCE
+  value: {{ .Values.config.stampSource | quote }}
+{{- end }}
 {{- if .Values.config.instanceId }}
 - name: INSTANCE_ID
   value: {{ .Values.config.instanceId | quote }}
