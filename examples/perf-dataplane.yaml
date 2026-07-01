@@ -1,4 +1,4 @@
-# Data-plane PERF deployment (1bsv-ops production doc 04, "W2").
+# Data-plane PERF deployment.
 #
 #   helm install sp . -f examples/perf-dataplane.yaml
 #

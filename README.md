@@ -46,7 +46,7 @@ Division of labour (the chart stays out of the hot path):
 | Anycast VIP on `lo`, FRR/BIRD announce, health-gated withdraw | **host** (`ingress-infra` networking+bgp roles; `fleet` `ingress:` block) |
 | Bind the VIP, serve `/healthz` + `/readyz` on `:9100` | **this chart** (`networking.mode: host`, `config.listenAddr: "[::]"`) |
 
-The proxy binds `[::]`, which covers the host-owned VIP — the chart never runs BGP or manages the VIP, so k8s carries no ingress packets through the pod network. For **graceful drain**, point the host speaker at `/readyz` (`fleet ingress.health_path: /readyz`): on SIGTERM the proxy drains for `config.drainTimeout` while readiness is false, so the VIP withdraws and senders re-home **before** the pod stops. See [1bsv-ops production doc 04 (I1)](https://github.com/lightwebinc/1bsv-ops/blob/main/docs/production/04-edge-ingress-orchestration.md).
+The proxy binds `[::]`, which covers the host-owned VIP — the chart never runs BGP or manages the VIP, so k8s carries no ingress packets through the pod network. For **graceful drain**, point the host speaker at `/readyz` (`fleet ingress.health_path: /readyz`): on SIGTERM the proxy drains for `config.drainTimeout` while readiness is false, so the VIP withdraws and senders re-home **before** the pod stops. BGP-anycast ingress; see [`examples/anycast-ingress.yaml`](examples/anycast-ingress.yaml).
 
 ### Orchestrated edge (W2)
 

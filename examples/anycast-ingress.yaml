@@ -1,4 +1,4 @@
-# BGP-anycast ingress deployment (1bsv-ops production doc 04, "I1").
+# BGP-anycast ingress deployment.
 #
 #   helm install sp . -f examples/anycast-ingress.yaml
 #
