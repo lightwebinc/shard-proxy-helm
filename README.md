@@ -13,7 +13,7 @@ This repository packages templates, default values, JSON Schema validation, and 
 ```bash
 # OCI registry
 helm install proxy oci://ghcr.io/lightwebinc/charts/shard-proxy \
-  --version 0.3.2 -n bsv-mcast --create-namespace \
+  --version 0.4.0 -n bsv-mcast --create-namespace \
   --set networking.multus.fabricIPv6=fd20::21/64
 
 # Or from a local clone
