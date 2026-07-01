@@ -115,6 +115,17 @@ config:
   fragMtu: 0
   drainTimeout: "0s"
 
+  # BRC-142 origin-side coalescing (bundle frame, FrameVer 0x08). When enabled
+  # the proxy packs many small transactions from one ingest batch into bundle
+  # datagrams, cutting fabric pps; the listener edge-decoalesces (or a
+  # bundle-capable consumer takes the bundle whole). Coalesce at the ORIGIN,
+  # never at a spine. Default off preserves per-frame egress.
+  # See bsv-multicast/docs/brc-142-coalescing-frame.md.
+  coalesce: false            # COALESCE — master switch
+  coalesceMaxBytes: 1500     # COALESCE_MAX_BYTES — max bundle datagram size (0 ⇒ 1500, the Ethernet MTU baseline)
+  coalesceMaxMembers: 0      # COALESCE_MAX_MEMBERS — max transactions per bundle (0 = MTU-bound)
+  coalesceCarryTxid: false   # COALESCE_CARRY_TXID — carry per-member TxID on the wire (dedup/billing) vs recompute
+
   # Two-tier ingress TxID deduplication.
   # Tier-1: in-process LRU (always active when localCap > 0).
   # Tier-2: modular shard-common/cache backend SETNX (memory|redis|aerospike).

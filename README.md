@@ -157,6 +157,16 @@ hysteresis window.
 
 See the [Automatic Shard Configuration Plan](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md#automatic-shard-configuration).
 
+### BRC-142 origin coalescing (opt-in)
+
+`config.coalesce` (default `false`) renders `COALESCE`; when enabled the proxy
+packs many small transactions from one ingest batch into bundle datagrams
+(`FrameVer 0x08`) to cut fabric pps. Tune with `config.coalesceMaxBytes`
+(`COALESCE_MAX_BYTES`, `0` ⇒ 1500), `config.coalesceMaxMembers`
+(`COALESCE_MAX_MEMBERS`, `0` = MTU-bound), and `config.coalesceCarryTxid`
+(`COALESCE_CARRY_TXID`). Coalesce at the origin, never at a spine. See the
+[BRC-142 coalescing frame](https://github.com/lightwebinc/bsv-multicast/blob/main/docs/brc-142-coalescing-frame.md).
+
 ## Helm test
 
 ```bash

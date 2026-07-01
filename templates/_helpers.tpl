@@ -132,6 +132,16 @@ Container env vars rendered from .Values.config plus extraEnv passthrough.
   value: {{ .Values.config.fragMtu | quote }}
 - name: DRAIN_TIMEOUT
   value: {{ .Values.config.drainTimeout | quote }}
+{{- if .Values.config.coalesce }}
+- name: COALESCE
+  value: {{ .Values.config.coalesce | quote }}
+- name: COALESCE_MAX_BYTES
+  value: {{ .Values.config.coalesceMaxBytes | default 1500 | quote }}
+- name: COALESCE_MAX_MEMBERS
+  value: {{ .Values.config.coalesceMaxMembers | default 0 | quote }}
+- name: COALESCE_CARRY_TXID
+  value: {{ .Values.config.coalesceCarryTxid | default false | quote }}
+{{- end }}
 - name: DEBUG
   value: {{ .Values.config.debug | quote }}
 - name: LOG_FORMAT
