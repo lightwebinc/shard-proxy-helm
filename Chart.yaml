@@ -2,12 +2,12 @@ apiVersion: v2
 name: shard-proxy
 description: IPv6 multicast frame proxy for the Bitcoin transaction distribution network
 type: application
-version: 0.4.1
+version: 0.5.0
 # appVersion MUST equal a tag published on ghcr.io/lightwebinc/shard-proxy
 # (the chart's tag:"" default pulls this). Images are published manually via the
 # binary repo's image-publish.yml workflow; bump appVersion ONLY in lockstep with
 # an image publish — binary git tags are NOT image tags until published.
-appVersion: "1.13.0"
+appVersion: "1.14.0"
 kubeVersion: ">= 1.27.0-0"
 keywords:
   - bitcoin
@@ -36,3 +36,7 @@ annotations:
       description: Schema fails install fast when config.sourceMode=ssm and config.bindSource is empty
     - kind: changed
       description: Renamed orchestrated-edge example to collapsed-node; genericized example presets and doc pointers
+    - kind: changed
+      description: values.schema.json caps config.shardBits at 12 (BRC-129 shard zoning)
+    - kind: changed
+      description: appVersion 1.14.0 (shard-bits validator 1-12; shard-common v0.14.3)

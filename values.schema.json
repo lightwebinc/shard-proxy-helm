@@ -51,7 +51,7 @@
         "egressMulticastLoop": { "type": ["boolean", "null"] },
         "egressHoplimit": { "type": "integer" },
         "egressPort":    { "type": "integer", "minimum": 1, "maximum": 65535 },
-        "shardBits":     { "type": "integer", "minimum": 1, "maximum": 15 },
+        "shardBits":     { "type": "integer", "minimum": 1, "maximum": 12 },
         "mcScope":       { "type": "string", "enum": ["link", "site", "org", "global"] },
         "mcGroupId":     { "type": "string" },
         "sourceMode":    { "type": "string", "enum": ["asm", "ssm"] },
