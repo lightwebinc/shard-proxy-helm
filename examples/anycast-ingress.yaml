@@ -3,15 +3,15 @@
 #   helm install sp . -f examples/anycast-ingress.yaml
 #
 # The proxy runs as a hostNetwork pod on a tainted data-plane worker and binds
-# the node's addresses ([::] covers the anycast VIP, which the HOST owns — the
-# ingress-infra networking+bgp roles put the VIP on `lo`, FRR/BIRD announce it,
-# and the bsp-bgp-check timer enables/withdraws it). The chart does NOT manage
-# the VIP or run BGP — those are host-level so k8s never touches the hot path.
+# the node's addresses ([::] covers the anycast VIP, which the HOST owns — your
+# host tooling puts the VIP on `lo`, a BGP speaker (FRR/BIRD) announces it, and
+# a health check enables/withdraws the route). The chart does NOT manage the
+# VIP or run BGP — those are host-level so k8s never touches the hot path.
 #
-# Graceful drain: set the host speaker's `bgp_health_path: /readyz` (fleet
-# `ingress.health_path: /readyz`). On SIGTERM the proxy drains for
-# `config.drainTimeout` while /readyz reports NOT-ready → the speaker withdraws
-# the VIP → senders re-home to other anycast nodes BEFORE this pod stops.
+# Graceful drain: point the host speaker's health check at `/readyz`. On
+# SIGTERM the proxy drains for `config.drainTimeout` while /readyz reports
+# NOT-ready → the speaker withdraws the VIP → senders re-home to other anycast
+# nodes BEFORE this pod stops.
 # terminationGracePeriodSeconds MUST exceed drainTimeout (enforced here).
 
 networking:
@@ -24,10 +24,14 @@ config:
   udpListenPort: 8725
   metricsAddr: ":9100"             # /healthz + /readyz served here — what the speaker probes
   drainTimeout: "15s"              # drain window; speaker (on /readyz) withdraws at drain start
+  # SSM default: the EGRESS source must be a distinct (non-anycast) IPv6 per
+  # node — anycast/ECMP-shared sources break PIM-SSM RPF. Doc-safe placeholder;
+  # set per release.
+  bindSource: "2001:db8::1"
 
 terminationGracePeriodSeconds: 30  # MUST be >= config.drainTimeout
 
-# Land only on the tainted data-plane pool (doc 02 / decision 4).
+# Land only on the tainted data-plane pool.
 nodeSelector:
   node-role/dataplane: ""
 tolerations:

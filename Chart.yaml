@@ -2,7 +2,7 @@ apiVersion: v2
 name: shard-proxy
 description: IPv6 multicast frame proxy for the Bitcoin transaction distribution network
 type: application
-version: 0.4.0
+version: 0.4.1
 # appVersion MUST equal a tag published on ghcr.io/lightwebinc/shard-proxy
 # (the chart's tag:"" default pulls this). Images are published manually via the
 # binary repo's image-publish.yml workflow; bump appVersion ONLY in lockstep with
@@ -31,4 +31,8 @@ annotations:
     - kind: added
       description: config.autoShardConfig keys (BRC-139 manifest consumer)
     - kind: added
-      description: Orchestrated-edge keys (config.stampSource, config.egressMulticastLoop, config.egressHoplimit) + orchestrated-edge example
+      description: Collapsed-node keys (config.stampSource, config.egressMulticastLoop, config.egressHoplimit) + collapsed-node example
+    - kind: changed
+      description: Schema fails install fast when config.sourceMode=ssm and config.bindSource is empty
+    - kind: changed
+      description: Renamed orchestrated-edge example to collapsed-node; genericized example presets and doc pointers

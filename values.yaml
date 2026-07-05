@@ -101,7 +101,7 @@ config:
   mcScope: "site"
   mcGroupId: "0x000B"
 
-  # SSM (RFC 4607). See bsv-multicast/docs/SourceSpecificMulticast.
+  # SSM (RFC 4607). See bsv-multicast/DESIGN.md#source-specific-multicast-ssm.
   # sourceMode: "ssm" (default, first-class; FF3x, PIM-SSM) or "asm" (FF0x; lab/dev fallback).
   # bindSource: required when sourceMode=ssm. MUST be unique per replica
   # (anycast across replicas breaks PIM-SSM RPF). Set to the per-pod
@@ -130,7 +130,7 @@ config:
   # Tier-1: in-process LRU (always active when localCap > 0).
   # Tier-2: modular shard-common/cache backend SETNX (memory|redis|aerospike).
   # Set localCap: 0 to disable ingress dedup entirely.
-  # See bsv-multicast/docs/ModularCacheBackend/modular-cache-backend.md
+  # See shard-common/docs/cache-backend.md
   txidDedup:
     localCap: 1048576    # tier-1 LRU capacity; 0 = disable
     backend: ""          # redis|aerospike|memory|none; empty infers redis when redisAddr set, else none
@@ -142,7 +142,7 @@ config:
     aerospikeNamespace: "cache"
     aerospikeSet: "bsp"
   debug: false  # deprecated alias for logLevel=debug
-  # Unified logging — see bsv-multicast/docs/UnifiedLogging/unified-logging-plan.md
+  # Unified logging — see shard-common/docs/logging.md
   logFormat: "text"   # text (stderr) | json (stdout, for fleet aggregation)
   logLevel: "info"    # debug|info|warn|error; runtime-togglable via POST /loglevel + SIGHUP
   traceSampling: 0    # 0..1 trace head sampling (0 = off; exports via otlpEndpoint; control-plane only)
@@ -156,7 +156,7 @@ config:
   otlpInterval: "30s"
 
   # BRC-139 auto-shard-config consumer (opt-in). See
-  # bsv-multicast/docs/AutoShardConfig/auto-shard-config-plan.md.
+  # bsv-multicast/DESIGN.md#automatic-shard-configuration.
   # When enabled the proxy opens a dedicated beacon-receive socket and adopts
   # ShardBits/SourceMode from authoritative pilot manifests once quorum +
   # hysteresis are met. Manual config above always wins; default off.
@@ -200,7 +200,7 @@ probes:
     timeoutSeconds: 5
     failureThreshold: 3
 
-# Datapath component (recvmmsg/sendmmsg packet loop, ~440k tx/s measured).
+# Datapath component (recvmmsg/sendmmsg packet loop).
 # CPU-bound under load — these are conservative starting points; tune limits
 # upward against your own throughput benchmark before high-rate production use.
 # Leaving this empty ({}) yields BestEffort QoS and no admission control.
@@ -215,9 +215,7 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 priorityClassName: ""
-# Perf pool (W2): attach a RuntimeClass whose containerd handler raises
-# RLIMIT_MEMLOCK (AF_XDP pinned UMEM on kernels < 5.11; CAP_BPF + memcg makes it
-# unnecessary on >= 5.11). Empty = cluster default runtime. See examples/perf-dataplane.yaml.
+# Optional RuntimeClass for specialised container runtimes. Empty = cluster default.
 runtimeClassName: ""
 topologySpreadConstraints: []
 

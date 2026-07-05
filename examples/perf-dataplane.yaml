@@ -1,48 +1,42 @@
-# Data-plane PERF deployment.
+# Dedicated data-plane performance preset.
 #
 #   helm install sp . -f examples/perf-dataplane.yaml
 #
-# Guaranteed-QoS AF_XDP/SR-IOV pod on the tainted, NUMA-tuned perf pool. Requires:
-#   - the node on the kubelet `dataplane` worker profile (CPU Manager static +
-#     Topology single-numa-node + Memory Static + reserved cores) — k0s-config;
-#   - hugepages pre-allocated on the host (perf-tuning role);
-#   - the SR-IOV device plugin advertising 1bsv.net/mcast_vf (platform/sriov) —
-#     HARDWARE-GATED: needs real SR-IOV PFs.
-# Throughput/zero-copy is validated on a real perf node (xhost-perf-rig), NOT in
-# the functional lab. Compose with examples/anycast-ingress.yaml for HA ingress.
+# Pins the proxy's kernel packet loop (recvmmsg/sendmmsg) to exclusive,
+# NUMA-local cores for stable high-rate forwarding. Requires nodes with:
+#   - kubelet CPU Manager `static` policy + Topology Manager `single-numa-node`
+#     (plus reserved system cores);
+#   - a dedicated fabric NIC exposed to the pod (macvlan or an SR-IOV VF) via a
+#     NetworkAttachmentDefinition, on the same NUMA node as the pinned cores.
+# Compose with examples/anycast-ingress.yaml for HA ingress.
 
-# VF gives zero-copy (macvlan does not): bind the SR-IOV NAD as the fabric NIC.
 networking:
   mode: multus
   multus:
-    networkName: mcast-vf
+    networkName: mcast-fabric
     namespace: bsv-mcast
     interface: net1
 
-# AF_XDP needs CAP_BPF (+ NET_ADMIN for the egress socket); CAP_PERFMON for maps.
-securityContext:
-  capabilities:
-    add: ["NET_ADMIN", "BPF", "PERFMON"]
+config:
+  # SSM default: bind a distinct source IPv6 per replica — use the pod's fabric
+  # address (doc-safe placeholder here; set per release).
+  bindSource: "2001:db8::42"
 
-# Integer cpu + equal requests/limits + hugepages ⇒ Guaranteed QoS ⇒ exclusive
-# NUMA-local cores from CPU Manager static. Size cpu to the isolated core count.
+# Integer cpu + equal requests/limits ⇒ Guaranteed QoS ⇒ exclusive NUMA-local
+# cores from CPU Manager static. Size cpu to the core count you can dedicate;
+# benchmark on your own hardware before high-rate production use.
 resources:
   requests:
     cpu: "4"
     memory: 2Gi
-    hugepages-2Mi: 512Mi
   limits:
     cpu: "4"
     memory: 2Gi
-    hugepages-2Mi: 512Mi
 
-# Land only on the perf pool (decision 4); tolerate its taint.
+# Land only on the dedicated data-plane pool; tolerate its taint.
 nodeSelector:
   node-role/dataplane: ""
 tolerations:
   - key: dataplane
     operator: Exists
     effect: NoSchedule
-
-# Optional: a RuntimeClass that raises RLIMIT_MEMLOCK for kernels < 5.11.
-# runtimeClassName: memlock-unlimited

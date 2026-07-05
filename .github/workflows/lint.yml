@@ -21,23 +21,27 @@ jobs:
         with:
           version: v3.16.0
 
-      - name: helm lint (defaults)
-        run: helm lint .
+      # Defaults are sourceMode=ssm, which the schema (deliberately) fails
+      # without a per-replica config.bindSource — so lint/template set one.
+      - name: helm lint (defaults + bindSource)
+        run: helm lint . --set config.bindSource=2001:db8::21
 
       - name: helm lint (strict)
-        run: helm lint . --strict
+        run: helm lint . --strict --set config.bindSource=2001:db8::21
 
       - name: helm template (multus default)
         run: |
           helm template release-test . \
             --set networking.multus.fabricIPv6=fd20::21/64 \
+            --set config.bindSource=fd20::21 \
             --debug > /tmp/render-multus.yaml
           test -s /tmp/render-multus.yaml
 
-      - name: helm template (host network fallback)
+      - name: helm template (host network fallback, asm)
         run: |
           helm template release-test . \
             --set networking.mode=host \
+            --set config.sourceMode=asm \
             --debug > /tmp/render-host.yaml
           test -s /tmp/render-host.yaml
 
@@ -45,6 +49,7 @@ jobs:
         run: |
           helm template release-test . \
             --set networking.mode=host \
+            --set config.sourceMode=asm \
             --set metrics.serviceMonitor.enabled=true \
             --set podDisruptionBudget.enabled=true \
             --set networkPolicy.enabled=true \

@@ -11,14 +11,16 @@ This repository packages templates, default values, JSON Schema validation, and 
 > The chart references `ghcr.io/lightwebinc/shard-proxy:<appVersion>` — `appVersion` always tracks a published image tag (see the contract note in [`Chart.yaml`](Chart.yaml)).
 
 ```bash
-# OCI registry
+# OCI registry (SSM default — bindSource is the pod's fabric IPv6, unique per replica)
 helm install proxy oci://ghcr.io/lightwebinc/charts/shard-proxy \
   --version 0.4.0 -n bsv-mcast --create-namespace \
-  --set networking.multus.fabricIPv6=fd20::21/64
+  --set networking.multus.fabricIPv6=fd20::21/64 \
+  --set config.bindSource=fd20::21
 
-# Or from a local clone
+# Or from a local clone (lab/dev: ASM fallback needs no per-replica source)
 helm install proxy . -n bsv-mcast --create-namespace \
-  --set networking.mode=host
+  --set networking.mode=host \
+  --set config.sourceMode=asm
 ```
 
 ## Networking modes
@@ -29,7 +31,7 @@ helm install proxy . -n bsv-mcast --create-namespace \
 | `host` | `hostNetwork: true`; `MULTICAST_IF` resolves to the host NIC named by `config.multicastIf`. Single-NIC fallback. |
 | `unicast` | Reserved for a future proxy `EGRESS_MODE=unicast-list` release. The chart renders pods but emits a `helm.sh/chart-warnings` annotation. |
 
-See [multicast-kube-infra](https://github.com/lightwebinc/multicast-kube-infra) for wiring proxy + listener + retry-endpoint via Helmfile / ArgoCD / Terraform / plain Helm.
+To run the full pipeline, compose this chart with the [shard-listener](https://github.com/lightwebinc/shard-listener-helm) and [retry-endpoint](https://github.com/lightwebinc/retry-endpoint-helm) charts — they are independent releases wired together by multicast group/port configuration, and work with Helmfile, ArgoCD, or plain Helm.
 
 ### BGP-anycast ingress (host mode)
 
@@ -43,17 +45,17 @@ Division of labour (the chart stays out of the hot path):
 
 | Concern | Owner |
 |---|---|
-| Anycast VIP on `lo`, FRR/BIRD announce, health-gated withdraw | **host** (`ingress-infra` networking+bgp roles; `fleet` `ingress:` block) |
+| Anycast VIP on `lo`, FRR/BIRD announce, health-gated withdraw | **host** (your BGP speaker — FRR/BIRD — plus a health check that gates the announce on `/readyz`) |
 | Bind the VIP, serve `/healthz` + `/readyz` on `:9100` | **this chart** (`networking.mode: host`, `config.listenAddr: "[::]"`) |
 
-The proxy binds `[::]`, which covers the host-owned VIP — the chart never runs BGP or manages the VIP, so k8s carries no ingress packets through the pod network. For **graceful drain**, point the host speaker at `/readyz` (`fleet ingress.health_path: /readyz`): on SIGTERM the proxy drains for `config.drainTimeout` while readiness is false, so the VIP withdraws and senders re-home **before** the pod stops. BGP-anycast ingress; see [`examples/anycast-ingress.yaml`](examples/anycast-ingress.yaml).
+The proxy binds `[::]`, which covers the host-owned VIP — the chart never runs BGP or manages the VIP, so k8s carries no ingress packets through the pod network. For **graceful drain**, point the host speaker's health check at `/readyz`: on SIGTERM the proxy drains for `config.drainTimeout` while readiness is false, so the VIP withdraws and senders re-home **before** the pod stops. BGP-anycast ingress; see [`examples/anycast-ingress.yaml`](examples/anycast-ingress.yaml).
 
-### Orchestrated edge (W2)
+### Collapsed node (hostNetwork)
 
-On a fleet-orchestrated collapsed edge the proxy runs as a `hostNetwork` pod on a k0s worker, sharing the host with a co-resident listener and the kernel ip6gre + `mc-router` fabric (configured by the `integrated-infra` roles). Worked example: [`examples/orchestrated-edge.yaml`](examples/orchestrated-edge.yaml).
+On a collapsed node the proxy runs as a `hostNetwork` pod, sharing the host with a co-resident listener and the kernel multicast fabric (e.g. ip6gre tunnels + an mroute daemon). Worked example: [`examples/collapsed-node.yaml`](examples/collapsed-node.yaml).
 
 ```sh
-helm install shard-proxy-us . -f examples/orchestrated-edge.yaml \
+helm install shard-proxy-us . -f examples/collapsed-node.yaml \
   --set nodeSelector."topology\.kubernetes\.io/region"=us
 ```
 
@@ -127,11 +129,13 @@ values file. See
 
 ### SSM (Source-Specific Multicast)
 
-`config.sourceMode` (`asm` default, `ssm` opt-in) renders to the
-`SOURCE_MODE` env var. When `ssm`, set `config.bindSource` to the
+`config.sourceMode` (`ssm` default; `asm` is the lab/dev fallback) renders to
+the `SOURCE_MODE` env var. When `ssm`, set `config.bindSource` to the
 per-pod IPv6 from your Multus/Whereabouts allocation — each replica
 MUST hold a distinct address (anycast/ECMP-shared sources break
-PIM-SSM RPF). `bindSource` renders to `BIND_SOURCE`. See the
+PIM-SSM RPF). `bindSource` renders to `BIND_SOURCE`; the schema fails
+the install fast when `sourceMode` is `ssm` and `bindSource` is empty
+(the binary would refuse that combination anyway). See the
 [SSM Support Plan](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md#source-specific-multicast-ssm)
 for fabric prerequisites.
 

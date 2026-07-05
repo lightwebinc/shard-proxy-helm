@@ -93,7 +93,20 @@
             "bridgingWindow":  { "type": "string" }
           }
         }
-      }
+      },
+      "allOf": [
+        {
+          "$comment": "sourceMode=ssm requires a per-replica bindSource — the binary refuses SSM without one, so fail the install fast instead of crash-looping.",
+          "if": {
+            "properties": { "sourceMode": { "const": "ssm" } },
+            "required": ["sourceMode"]
+          },
+          "then": {
+            "properties": { "bindSource": { "type": "string", "minLength": 1 } },
+            "required": ["bindSource"]
+          }
+        }
+      ]
     }
   }
 }
