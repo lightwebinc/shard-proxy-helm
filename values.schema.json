@@ -44,9 +44,8 @@
       "properties": {
         "udpListenPort": { "type": "integer", "minimum": 0, "maximum": 65535 },
         "tcpListenPort": { "type": "integer", "minimum": 0, "maximum": 65535 },
-        "minerListenPort":    { "type": "integer", "minimum": 0, "maximum": 65535 },
-        "minerTcpListenPort": { "type": "integer", "minimum": 0, "maximum": 65535 },
-        "txAcceptPrivileged": { "type": "boolean" },
+        "subtreeListenPort": { "type": "integer", "minimum": 0, "maximum": 65535 },
+        "blockListenPort":   { "type": "integer", "minimum": 0, "maximum": 65535 },
         "multicastIf":   { "type": "string" },
         "egressMulticastLoop": { "type": ["boolean", "null"] },
         "egressHoplimit": { "type": "integer" },

@@ -70,14 +70,14 @@ spec:
               containerPort: {{ .Values.config.tcpListenPort }}
               protocol: TCP
             {{- end }}
-            {{- if gt (int (.Values.config.minerListenPort | default 0)) 0 }}
-            - name: miner-udp
-              containerPort: {{ .Values.config.minerListenPort }}
-              protocol: UDP
+            {{- if gt (int (.Values.config.subtreeListenPort | default 0)) 0 }}
+            - name: subtree-push
+              containerPort: {{ .Values.config.subtreeListenPort }}
+              protocol: TCP
             {{- end }}
-            {{- if gt (int (.Values.config.minerTcpListenPort | default 0)) 0 }}
-            - name: miner-tcp
-              containerPort: {{ .Values.config.minerTcpListenPort }}
+            {{- if gt (int (.Values.config.blockListenPort | default 0)) 0 }}
+            - name: block-push
+              containerPort: {{ .Values.config.blockListenPort }}
               protocol: TCP
             {{- end }}
             - name: metrics

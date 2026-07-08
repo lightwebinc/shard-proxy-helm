@@ -19,20 +19,20 @@ spec:
       from:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-    {{- if or (gt (int (.Values.config.minerListenPort | default 0)) 0) (gt (int (.Values.config.minerTcpListenPort | default 0)) 0) }}
-    # Privileged miner ingress: admit only the configured miner peers. An
-    # empty minerIngressFrom is fail-closed (no `from` peers ⇒ no source
-    # matches), so the privileged path is never silently world-open.
+    {{- if or (gt (int (.Values.config.subtreeListenPort | default 0)) 0) (gt (int (.Values.config.blockListenPort | default 0)) 0) }}
+    # Privileged push ingress (BRC-143 subtree / BRC-144 block): admit only the
+    # configured peers. An empty pushIngressFrom is fail-closed (no `from` peers
+    # ⇒ no source matches), so the privileged path is never silently world-open.
     - ports:
-        {{- if gt (int (.Values.config.minerListenPort | default 0)) 0 }}
-        - port: miner-udp
-          protocol: UDP
+        {{- if gt (int (.Values.config.subtreeListenPort | default 0)) 0 }}
+        - port: subtree-push
+          protocol: TCP
         {{- end }}
-        {{- if gt (int (.Values.config.minerTcpListenPort | default 0)) 0 }}
-        - port: miner-tcp
+        {{- if gt (int (.Values.config.blockListenPort | default 0)) 0 }}
+        - port: block-push
           protocol: TCP
         {{- end }}
       from:
-        {{- toYaml .Values.networkPolicy.minerIngressFrom | nindent 8 }}
+        {{- toYaml .Values.networkPolicy.pushIngressFrom | nindent 8 }}
     {{- end }}
 {{- end }}

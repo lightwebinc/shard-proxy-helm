@@ -96,12 +96,10 @@ Container env vars rendered from .Values.config plus extraEnv passthrough.
   value: {{ .Values.config.udpListenPort | quote }}
 - name: TCP_LISTEN_PORT
   value: {{ .Values.config.tcpListenPort | quote }}
-- name: MINER_LISTEN_PORT
-  value: {{ .Values.config.minerListenPort | default 0 | quote }}
-- name: MINER_TCP_LISTEN_PORT
-  value: {{ .Values.config.minerTcpListenPort | default 0 | quote }}
-- name: TX_ACCEPT_PRIVILEGED
-  value: {{ .Values.config.txAcceptPrivileged | default false | quote }}
+- name: SUBTREE_LISTEN_PORT
+  value: {{ .Values.config.subtreeListenPort | default 0 | quote }}
+- name: BLOCK_LISTEN_PORT
+  value: {{ .Values.config.blockListenPort | default 0 | quote }}
 - name: MULTICAST_IF
   value: {{ include "shard-proxy.multicastIf" . | quote }}
 {{- if kindIs "bool" .Values.config.egressMulticastLoop }}
