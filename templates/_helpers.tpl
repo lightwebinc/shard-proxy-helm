@@ -100,6 +100,12 @@ Container env vars rendered from .Values.config plus extraEnv passthrough.
   value: {{ .Values.config.subtreeListenPort | default 0 | quote }}
 - name: BLOCK_LISTEN_PORT
   value: {{ .Values.config.blockListenPort | default 0 | quote }}
+- name: BEEF_LISTEN_PORT
+  value: {{ .Values.config.beefListenPort | default 0 | quote }}
+- name: BEEF_SHARD_BITS
+  value: {{ .Values.config.beefShardBits | default 4 | quote }}
+- name: BEEF_MAX_OBJECT_BYTES
+  value: {{ .Values.config.beefMaxObjectBytes | default 1048576 | quote }}
 - name: MULTICAST_IF
   value: {{ include "shard-proxy.multicastIf" . | quote }}
 {{- if kindIs "bool" .Values.config.egressMulticastLoop }}
