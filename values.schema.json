@@ -122,7 +122,9 @@
         },
         "beefMaxObjectBytes": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 1,
+          "maximum": 80740352,
+          "description": "D9 per-object byte bound (BRC-149 ingress MUST). Default 1 MiB. MUST match across proxy/listener/retry. Max is the ~77 MiB structural ceiling (uint16 FragTotal at the 1280-byte floor)."
         },
         "multicastIf": {
           "type": "string"
@@ -299,6 +301,12 @@
               "type": "string"
             }
           }
+        },
+        "beefMaxObjectBytesAuth": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 80740352,
+          "description": "D9 bound for AUTHENTICATED sources (larger allowance; identity makes abuse accountable). Default 8 MiB."
         }
       },
       "allOf": [

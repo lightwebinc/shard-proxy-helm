@@ -91,7 +91,8 @@ config:
   # beefMaxObjectBytes bounds one accepted object (BRC-148 ingress MUST-bound).
   beefListenPort: 0        # BEEF_LISTEN_PORT — optional dedicated BEEF lane (standard 8728); 0 = disabled
   beefShardBits: 0         # BEEF_SHARD_BITS — 0-12, 0 = single group
-  beefMaxObjectBytes: 1048576  # BEEF_MAX_OBJECT_BYTES — max accepted BEEF object size
+  beefMaxObjectBytes: 1048576       # BEEF_MAX_OBJECT_BYTES — D9 open-ingress bound (1 MiB)
+  beefMaxObjectBytesAuth: 8388608   # D9 authenticated bound (8 MiB); ceiling ~77 MiB (uint16 FragTotal @1280)
   # Comma-separated NIC names for multicast egress. Overridden by networking.multus.interface
   # when networking.mode=multus.
   multicastIf: "eth0"
