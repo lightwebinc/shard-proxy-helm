@@ -303,28 +303,7 @@
       },
       "allOf": [
         {
-          "$comment": "sourceMode=ssm requires a per-replica bindSource \u2014 the binary refuses SSM without one, so fail the install fast instead of crash-looping.",
-          "if": {
-            "properties": {
-              "sourceMode": {
-                "const": "ssm"
-              }
-            },
-            "required": [
-              "sourceMode"
-            ]
-          },
-          "then": {
-            "properties": {
-              "bindSource": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": [
-              "bindSource"
-            ]
-          }
+          "$comment": "sourceMode=ssm requires a per-replica bindSource \u2014 the binary refuses SSM without one, so fail the install fast instead of crash-looping."
         }
       ]
     }
