@@ -4,108 +4,326 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
-    "replicaCount": { "type": "integer", "minimum": 0 },
-    "terminationGracePeriodSeconds": { "type": ["integer", "null"], "minimum": 0 },
-    "resources": { "type": "object" },
-    "podSecurityContext": { "type": "object" },
+    "replicaCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "terminationGracePeriodSeconds": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "resources": {
+      "type": "object"
+    },
+    "podSecurityContext": {
+      "type": "object"
+    },
     "image": {
       "type": "object",
       "properties": {
-        "repository": { "type": "string", "minLength": 1 },
-        "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] },
-        "tag": { "type": "string" }
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": [
+            "Always",
+            "IfNotPresent",
+            "Never"
+          ]
+        },
+        "tag": {
+          "type": "string"
+        }
       },
-      "required": ["repository", "pullPolicy"]
+      "required": [
+        "repository",
+        "pullPolicy"
+      ]
     },
     "networking": {
       "type": "object",
       "properties": {
-        "mode": { "type": "string", "enum": ["multus", "host", "unicast"] },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "multus",
+            "host",
+            "unicast"
+          ]
+        },
         "multus": {
           "type": "object",
           "properties": {
-            "networkName": { "type": "string" },
-            "namespace": { "type": "string" },
-            "fabricIPv6": { "type": "string" },
-            "interface": { "type": "string" }
+            "networkName": {
+              "type": "string"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "fabricIPv6": {
+              "type": "string"
+            },
+            "interface": {
+              "type": "string"
+            }
           }
         },
         "host": {
           "type": "object",
           "properties": {
-            "dnsPolicy": { "type": "string" }
+            "dnsPolicy": {
+              "type": "string"
+            }
           }
         }
       },
-      "required": ["mode"]
+      "required": [
+        "mode"
+      ]
     },
     "config": {
       "type": "object",
       "properties": {
-        "udpListenPort": { "type": "integer", "minimum": 0, "maximum": 65535 },
-        "tcpListenPort": { "type": "integer", "minimum": 0, "maximum": 65535 },
-        "subtreeListenPort": { "type": "integer", "minimum": 0, "maximum": 65535 },
-        "blockListenPort":   { "type": "integer", "minimum": 0, "maximum": 65535 },
-        "beefListenPort":    { "type": "integer", "minimum": 0, "maximum": 65535 },
-        "beefShardBits":     { "type": "integer", "minimum": 1, "maximum": 12 },
-        "beefMaxObjectBytes": { "type": "integer", "minimum": 1 },
-        "multicastIf":   { "type": "string" },
-        "egressMulticastLoop": { "type": ["boolean", "null"] },
-        "egressHoplimit": { "type": "integer" },
-        "egressPort":    { "type": "integer", "minimum": 1, "maximum": 65535 },
-        "shardBits":     { "type": "integer", "minimum": 1, "maximum": 12 },
-        "mcScope":       { "type": "string", "enum": ["link", "site", "org", "global"] },
-        "mcGroupId":     { "type": "string" },
-        "sourceMode":    { "type": "string", "enum": ["asm", "ssm"] },
-        "bindSource":    { "type": "string" },
-        "stampSource":   { "type": ["boolean", "null"] },
-        "numWorkers":    { "type": "integer", "minimum": 0 },
-        "fragMtu":       { "type": "integer", "minimum": 0 },
-        "coalesce":           { "type": "boolean" },
-        "coalesceMaxBytes":   { "type": "integer", "minimum": 0 },
-        "coalesceMaxMembers": { "type": "integer", "minimum": 0 },
-        "coalesceCarryTxid":  { "type": "boolean" },
-        "debug":         { "type": "boolean" },
-        "logFormat":     { "type": "string", "enum": ["text", "json"] },
-        "logLevel":      { "type": "string", "enum": ["debug", "info", "warn", "error"] },
-        "traceSampling": { "type": "number", "minimum": 0, "maximum": 1 },
+        "udpListenPort": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "tcpListenPort": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "subtreeListenPort": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "blockListenPort": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "beefListenPort": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "beefShardBits": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12,
+          "description": "BRC-148 plane width (band 0x1000 + 2^bits groups); 0 = single-group plane. MUST match the ingress proxies."
+        },
+        "beefMaxObjectBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "multicastIf": {
+          "type": "string"
+        },
+        "egressMulticastLoop": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "egressHoplimit": {
+          "type": "integer"
+        },
+        "egressPort": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "shardBits": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "mcScope": {
+          "type": "string",
+          "enum": [
+            "link",
+            "site",
+            "org",
+            "global"
+          ]
+        },
+        "mcGroupId": {
+          "type": "string"
+        },
+        "sourceMode": {
+          "type": "string",
+          "enum": [
+            "asm",
+            "ssm"
+          ]
+        },
+        "bindSource": {
+          "type": "string"
+        },
+        "stampSource": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "numWorkers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fragMtu": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coalesce": {
+          "type": "boolean"
+        },
+        "coalesceMaxBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coalesceMaxMembers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coalesceCarryTxid": {
+          "type": "boolean"
+        },
+        "debug": {
+          "type": "boolean"
+        },
+        "logFormat": {
+          "type": "string",
+          "enum": [
+            "text",
+            "json"
+          ]
+        },
+        "logLevel": {
+          "type": "string",
+          "enum": [
+            "debug",
+            "info",
+            "warn",
+            "error"
+          ]
+        },
+        "traceSampling": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
         "txidDedup": {
           "type": "object",
           "properties": {
-            "localCap":  { "type": "integer", "minimum": 0 },
-            "backend":   { "type": "string", "enum": ["", "memory", "redis", "aerospike", "none"] },
-            "redisAddr": { "type": "string" },
-            "prefix":    { "type": "string" },
-            "ttl":       { "type": "string" },
-            "aerospikeHosts":     { "type": "string" },
-            "aerospikeNamespace": { "type": "string" },
-            "aerospikeSet":       { "type": "string" }
+            "localCap": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "backend": {
+              "type": "string",
+              "enum": [
+                "",
+                "memory",
+                "redis",
+                "aerospike",
+                "none"
+              ]
+            },
+            "redisAddr": {
+              "type": "string"
+            },
+            "prefix": {
+              "type": "string"
+            },
+            "ttl": {
+              "type": "string"
+            },
+            "aerospikeHosts": {
+              "type": "string"
+            },
+            "aerospikeNamespace": {
+              "type": "string"
+            },
+            "aerospikeSet": {
+              "type": "string"
+            }
           }
         },
         "autoShardConfig": {
           "type": "object",
           "properties": {
-            "enabled":         { "type": "boolean" },
-            "bootstrap":       { "type": "string", "enum": ["optional", "required"] },
-            "pilotQuorum":     { "type": "integer", "minimum": 1 },
-            "pilotHysteresis": { "type": "string" },
-            "beaconScope":     { "type": "string", "enum": ["", "link", "site", "org", "global"] },
-            "beaconPort":      { "type": "integer", "minimum": 1, "maximum": 65535 },
-            "liveResharding":  { "type": "boolean" },
-            "bridgingWindow":  { "type": "string" }
+            "enabled": {
+              "type": "boolean"
+            },
+            "bootstrap": {
+              "type": "string",
+              "enum": [
+                "optional",
+                "required"
+              ]
+            },
+            "pilotQuorum": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "pilotHysteresis": {
+              "type": "string"
+            },
+            "beaconScope": {
+              "type": "string",
+              "enum": [
+                "",
+                "link",
+                "site",
+                "org",
+                "global"
+              ]
+            },
+            "beaconPort": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "liveResharding": {
+              "type": "boolean"
+            },
+            "bridgingWindow": {
+              "type": "string"
+            }
           }
         }
       },
       "allOf": [
         {
-          "$comment": "sourceMode=ssm requires a per-replica bindSource — the binary refuses SSM without one, so fail the install fast instead of crash-looping.",
+          "$comment": "sourceMode=ssm requires a per-replica bindSource \u2014 the binary refuses SSM without one, so fail the install fast instead of crash-looping.",
           "if": {
-            "properties": { "sourceMode": { "const": "ssm" } },
-            "required": ["sourceMode"]
+            "properties": {
+              "sourceMode": {
+                "const": "ssm"
+              }
+            },
+            "required": [
+              "sourceMode"
+            ]
           },
           "then": {
-            "properties": { "bindSource": { "type": "string", "minLength": 1 } },
-            "required": ["bindSource"]
+            "properties": {
+              "bindSource": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "bindSource"
+            ]
           }
         }
       ]

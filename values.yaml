@@ -90,7 +90,7 @@ config:
   # beefShardBits sizes the plane band (0x1000 + 2^bits groups); must match listeners/retry.
   # beefMaxObjectBytes bounds one accepted object (BRC-148 ingress MUST-bound).
   beefListenPort: 0        # BEEF_LISTEN_PORT — optional dedicated BEEF lane (standard 8728); 0 = disabled
-  beefShardBits: 4         # BEEF_SHARD_BITS — 1-12
+  beefShardBits: 0         # BEEF_SHARD_BITS — 0-12, 0 = single group
   beefMaxObjectBytes: 1048576  # BEEF_MAX_OBJECT_BYTES — max accepted BEEF object size
   # Comma-separated NIC names for multicast egress. Overridden by networking.multus.interface
   # when networking.mode=multus.
