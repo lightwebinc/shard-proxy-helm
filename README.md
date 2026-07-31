@@ -111,6 +111,21 @@ multicast fabric the real source restriction is the fabric firewall / provider
 ACL (tunnel-bound), not the pod-network `NetworkPolicy`. See
 [architecture.md § Teranode Relationship](https://github.com/lightwebinc/bsv-multicast/blob/main/multicast-skills/architecture.md).
 
+### Block PoW gate (default ON)
+
+| Key | Env var | Default | Notes |
+|-----|---------|---------|-------|
+| `config.requireBlockPow` | `REQUIRE_BLOCK_POW` | `true` | Gate BRC-131 block announces on real header proof-of-work before they reach the fabric. Applies to blocks entering via `config.blockListenPort`. |
+| `config.minPowBits` | `MIN_POW_BITS` | `"0"` | Difficulty floor in Bitcoin compact nBits. `"0"` = header self-consistency only. mainnet/testnet `"0x1d00ffff"`, devnet `"0x207fffff"`. |
+
+Both env vars are rendered **unconditionally**, so `requireBlockPow: false` really
+turns the gate off — with a conditional (omit-when-false) rendering the binary's
+`true` default would silently win. `minPowBits` hex MUST carry the `0x` prefix: a
+bare `"1d00ffff"` is parsed as decimal and the proxy refuses to start
+(`values.schema.json` rejects it at install time). Keep this consistent with the
+downstream listener chart — the edge re-validates announces that arrive by
+multicast, so a floor set only on the proxy is not enforced end to end.
+
 ### Ingress TxID dedup backend
 
 `config.txidDedup` controls the two-tier ingress dedup gate. Tier-1 is the

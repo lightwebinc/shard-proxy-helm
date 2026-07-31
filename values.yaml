@@ -83,6 +83,15 @@ config:
   # See bsv-multicast/multicast-skills/architecture.md §Teranode Relationship.
   subtreeListenPort: 0   # SUBTREE_LISTEN_PORT — TCP BRC-143 subtree push ingest (standard 8726); 0 = disabled
   blockListenPort: 0     # BLOCK_LISTEN_PORT — TCP BRC-144 block push ingest (standard 8727); 0 = disabled
+  # Block control-plane PoW gate. requireBlockPow gates every BRC-131 announce
+  # the proxy emits on real header proof-of-work. DEFAULT TRUE, matching the
+  # binary — this value is rendered unconditionally, so false really disables it.
+  # minPowBits is the difficulty floor in Bitcoin compact nBits: "0" (default)
+  # means header self-consistency only. mainnet/testnet "0x1d00ffff",
+  # devnet "0x207fffff". Hex MUST carry the 0x prefix — a bare "1d00ffff" is
+  # parsed as decimal and the proxy refuses to start.
+  requireBlockPow: true    # REQUIRE_BLOCK_POW
+  minPowBits: "0"          # MIN_POW_BITS
   # BRC-148 BEEF object plane. BEEF is an OPEN class: submission records (0xBEEF-tagged
   # envelopes) and framed FrameVer 0x09 ride the public tx port 8725 regardless of
   # beefListenPort — which only opens an OPTIONAL dedicated single-class lane (standard

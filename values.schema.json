@@ -126,6 +126,15 @@
           "maximum": 80740352,
           "description": "D9 per-object byte bound (BRC-149 ingress MUST). Default 1 MiB. MUST match across proxy/listener/retry. Max is the ~77 MiB structural ceiling (uint16 FragTotal at the 1280-byte floor)."
         },
+        "requireBlockPow": {
+          "type": "boolean",
+          "description": "REQUIRE_BLOCK_POW — gate BRC-131 block announces on header proof-of-work before egress. Default true (matches the binary); rendered unconditionally so false really disables the gate."
+        },
+        "minPowBits": {
+          "type": "string",
+          "pattern": "^(0[xX][0-9a-fA-F]{1,8}|[0-9]{1,10})$",
+          "description": "MIN_POW_BITS — PoW difficulty floor for requireBlockPow in Bitcoin compact nBits. \"0\" = header self-consistency only (default). mainnet/testnet 0x1d00ffff, devnet 0x207fffff. Hex MUST carry the 0x prefix — a bare \"1d00ffff\" is parsed as decimal and fails at startup."
+        },
         "multicastIf": {
           "type": "string"
         },
