@@ -110,9 +110,11 @@ Container env vars rendered from .Values.config plus extraEnv passthrough.
 - name: BEEF_LISTEN_PORT
   value: {{ .Values.config.beefListenPort | default 0 | quote }}
 - name: BEEF_SHARD_BITS
-  value: {{ .Values.config.beefShardBits | default 4 | quote }}
+  {{- /* int (not default): Go-template default treats 0 as empty, so
+         `| default 4` silently widened an explicit 0 (single group) to 4. */}}
+  value: {{ .Values.config.beefShardBits | int | quote }}
 - name: BEEF_MAX_OBJECT_BYTES
-  value: {{ .Values.config.beefMaxObjectBytes | default 1048576 | quote }}
+  value: {{ .Values.config.beefMaxObjectBytes | default 1048576 | int64 | quote }}
 - name: MULTICAST_IF
   value: {{ include "shard-proxy.multicastIf" . | quote }}
 {{- if kindIs "bool" .Values.config.egressMulticastLoop }}
@@ -181,7 +183,7 @@ Container env vars rendered from .Values.config plus extraEnv passthrough.
 {{- end }}
 {{- if .Values.config.txidDedup }}
 - name: TXID_DEDUP_LOCAL_CAP
-  value: {{ .Values.config.txidDedup.localCap | quote }}
+  value: {{ .Values.config.txidDedup.localCap | int64 | quote }}
 - name: TXID_DEDUP_PREFIX
   value: {{ .Values.config.txidDedup.prefix | quote }}
 - name: TXID_DEDUP_TTL
