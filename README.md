@@ -13,7 +13,7 @@ This repository packages templates, default values, JSON Schema validation, and 
 ```bash
 # OCI registry (SSM default — bindSource is the pod's fabric IPv6, unique per replica)
 helm install proxy oci://ghcr.io/lightwebinc/charts/shard-proxy \
-  --version 0.5.0 -n bsv-mcast --create-namespace \
+  --version 0.7.1 -n bsv-mcast --create-namespace \
   --set networking.multus.fabricIPv6=fd20::21/64 \
   --set config.bindSource=fd20::21
 
@@ -65,7 +65,7 @@ Collapsed-node config keys:
 |-----|---------|---------|-------|
 | `stampSource` | `STAMP_SOURCE` | `true` (binary) | Stamp the BRC-129 own-traffic-exclusion HashKey from the **observed per-consumer source IP**. `true` here because the `hostNetwork` pod sees real source addresses. Set `false` ONLY behind a source-rewriting LB. `null` inherits the binary default. |
 | `egressMulticastLoop` | `EGRESS_MULTICAST_LOOP` | `null` (off) | **REQUIRED `true` on a collapsed node**: the kernel MFC only forwards the proxy's locally-emitted multicast to the co-resident listener (and the fabric tunnels) when `IPV6_MULTICAST_LOOP` is on. |
-| `egressHoplimit` | `EGRESS_HOPLIMIT` | `1` | Raise the multicast hop limit — the default `1` dies on the first mesh/tunnel hop, so inter-region delivery needs a higher value (e.g. `16`). |
+| `egressHoplimit` | `EGRESS_HOPLIMIT` | `0` (chart; binary default `1` applies when unset) | Raise the multicast hop limit — the default `1` dies on the first mesh/tunnel hop, so inter-region delivery needs a higher value (e.g. `16`). |
 
 Two host facts the preset also sets:
 
@@ -74,7 +74,7 @@ Two host facts the preset also sets:
 
 ## Values reference
 
-See [`values.yaml`](values.yaml) for the full annotated reference. Every flag accepted by the proxy binary is exposed under `.config`; cluster-shape knobs (replicas, autoscaling, PDB, NetworkPolicy, ServiceMonitor) live at the top level.
+See [`values.yaml`](values.yaml) for the full annotated reference. Most flags accepted by the proxy binary are exposed under `.config`; the remainder (e.g. `-require-ef`, `-recv-batch`, `-retry-tee`, `-recv-buf-bytes`, `-pprof`, `-ingress-dedup`) can be set via `extraEnv`. Cluster-shape knobs (replicas, autoscaling, PDB, NetworkPolicy, ServiceMonitor) live at the top level.
 
 The chart includes [`values.schema.json`](values.schema.json) — `helm install` rejects out-of-range `shardBits`, invalid `mcScope`, invalid `networking.mode`, an invalid `logFormat` (`text`|`json`), `logLevel` (`debug`|`info`|`warn`|`error`), or out-of-range `traceSampling` (`0`–`1`) before reaching the cluster.
 
@@ -109,7 +109,7 @@ Restrict who may reach them with `networkPolicy.pushIngressFrom` (fail-closed �
 an empty list with a push port set admits no peers). On a Multus/host-network
 multicast fabric the real source restriction is the fabric firewall / provider
 ACL (tunnel-bound), not the pod-network `NetworkPolicy`. See
-[architecture.md § Teranode Relationship](https://github.com/lightwebinc/bsv-multicast/blob/main/multicast-skills/architecture.md).
+[DESIGN.md § Ingress Authorization](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md#ingress-authorization-miner-tier-gate).
 
 ### Block PoW gate (default ON)
 
@@ -148,7 +148,7 @@ values file. See
 
 `config.sourceMode` (`ssm` default; `asm` is the lab/dev fallback) renders to
 the `SOURCE_MODE` env var. When `ssm`, set `config.bindSource` to the
-per-pod IPv6 from your Multus/Whereabouts allocation — each replica
+per-pod IPv6 from your Multus static IPAM (or Whereabouts, if installed) allocation — each replica
 MUST hold a distinct address (anycast/ECMP-shared sources break
 PIM-SSM RPF). `bindSource` renders to `BIND_SOURCE`; the schema fails
 the install fast when `sourceMode` is `ssm` and `bindSource` is empty

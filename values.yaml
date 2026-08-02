@@ -80,7 +80,7 @@ config:
   # carrying the BRC-144 body verbatim). These ports are privileged: bind them
   # tunnel-side and restrict via networkPolicy.pushIngressFrom / firewall — only
   # 8725 is public. Standard numbers: 8726 subtree, 8727 block. 0 = disabled.
-  # See bsv-multicast/multicast-skills/architecture.md §Teranode Relationship.
+  # See bsv-multicast/DESIGN.md §Ingress Authorization (miner-tier gate).
   subtreeListenPort: 0   # SUBTREE_LISTEN_PORT — TCP BRC-143 subtree push ingest (standard 8726); 0 = disabled
   blockListenPort: 0     # BLOCK_LISTEN_PORT — TCP BRC-144 block push ingest (standard 8727); 0 = disabled
   # Block control-plane PoW gate. requireBlockPow gates every BRC-131 announce
@@ -123,7 +123,7 @@ config:
   # bindSource: required when sourceMode=ssm. MUST be unique per replica
   # (anycast across replicas breaks PIM-SSM RPF). Set to the per-pod
   # IPv6 from your Multus/Whereabouts allocation, e.g.
-  #   networking.multus.staticIPs[i] without the /prefix suffix.
+  #   networking.multus.fabricIPv6 without the /prefix suffix.
   sourceMode: "ssm"
   bindSource: ""
   # 0 means runtime.NumCPU at startup.
