@@ -82,14 +82,14 @@ config:
   # carrying the BRC-144 body verbatim). These ports are privileged: bind them
   # tunnel-side and restrict via networkPolicy.pushIngressFrom / firewall — only
   # 8725 is public. Standard numbers: 8726 subtree, 8727 block. 0 = disabled.
-  # Requires image >= v1.15.0 — the pinned appVersion 1.14.0 image ignores
-  # SUBTREE_LISTEN_PORT / BLOCK_LISTEN_PORT (it still has the miner-port flags).
+  # Requires image >= v1.15.0 (the default appVersion satisfies this); older
+  # pins ignore SUBTREE_LISTEN_PORT / BLOCK_LISTEN_PORT (miner-port flags era).
   # See bsv-multicast/DESIGN.md §Ingress Authorization (miner-tier gate).
   subtreeListenPort: 0   # SUBTREE_LISTEN_PORT — TCP BRC-143 subtree push ingest (standard 8726); 0 = disabled
   blockListenPort: 0     # BLOCK_LISTEN_PORT — TCP BRC-144 block push ingest (standard 8727); 0 = disabled
   # Block control-plane PoW gate. requireBlockPow gates every BRC-131 announce
   # the proxy emits on real header proof-of-work. DEFAULT TRUE, matching the
-  # binary from v1.25.0 (earlier images, incl. the pinned appVersion 1.14.0,
+  # binary since v1.25.0 (the default appVersion satisfies this; earlier images
   # default false). This value is rendered unconditionally, so the chart default
   # enables the gate on those images too and false really disables it.
   # minPowBits is the difficulty floor in Bitcoin compact nBits: "0" (default)
@@ -104,7 +104,7 @@ config:
   # 8728) for flow separation / load balancing, never admission. 0 = no dedicated lane.
   # beefShardBits sizes the plane band (0x1000 + 2^bits groups); must match listeners/retry.
   # beefMaxObjectBytes bounds one accepted object (BRC-148 ingress MUST-bound).
-  # Requires image >= v1.20.0 — the pinned appVersion 1.14.0 image ignores the BEEF_* envs.
+  # Requires image >= v1.20.0 (the default appVersion satisfies this); older pins ignore the BEEF_* envs.
   beefListenPort: 0        # BEEF_LISTEN_PORT — optional dedicated BEEF lane (standard 8728); 0 = disabled
   beefShardBits: 0         # BEEF_SHARD_BITS — 0-12, 0 = single group
   beefMaxObjectBytes: 1048576       # BEEF_MAX_OBJECT_BYTES — D9 open-ingress bound (1 MiB)

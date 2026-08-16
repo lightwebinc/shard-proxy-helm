@@ -94,10 +94,9 @@ enables control-plane traces. See the
 
 ### Push-frame ingest (miner port deprecated)
 
-> Requires image `>= v1.15.0` — the pinned `appVersion` 1.14.0 image still has
-> the deprecated miner-port flags and ignores `SUBTREE_LISTEN_PORT` /
-> `BLOCK_LISTEN_PORT`, so these ports are inert until `appVersion` moves past
-> 1.14.0.
+> Requires image `>= v1.15.0` — satisfied by the default `appVersion`. An older
+> `image.tag` pin still has the deprecated miner-port flags and ignores
+> `SUBTREE_LISTEN_PORT` / `BLOCK_LISTEN_PORT`, leaving these ports inert.
 
 The user ingress ports (`config.udpListenPort` 8725 / `config.tcpListenPort`)
 are transaction-only: privileged BRC-131/133/132 frames are dropped there
@@ -120,10 +119,10 @@ pod-network `NetworkPolicy`. See
 
 ### Block PoW gate (default ON)
 
-> The binary's own `true` default requires image `>= v1.25.0`; earlier images
-> (including the pinned `appVersion` 1.14.0) default `REQUIRE_BLOCK_POW=false`.
-> The chart renders the env unconditionally, so the chart-level `true` still
-> enables the gate on those images.
+> The binary's own `true` default requires image `>= v1.25.0` (satisfied by the
+> default `appVersion`); older pins default `REQUIRE_BLOCK_POW=false`. The chart
+> renders the env unconditionally, so the chart-level `true` still enables the
+> gate on those images.
 
 | Key | Env var | Default | Notes |
 |-----|---------|---------|-------|
