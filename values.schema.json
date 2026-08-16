@@ -310,17 +310,11 @@
               "type": "string"
             }
           }
-        },
-        "beefMaxObjectBytesAuth": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 80740352,
-          "description": "D9 bound for AUTHENTICATED sources (larger allowance; identity makes abuse accountable). Default 8 MiB."
         }
       },
       "allOf": [
         {
-          "$comment": "sourceMode=ssm requires a per-replica bindSource \u2014 the binary refuses SSM without one, so fail the install fast instead of crash-looping."
+          "$comment": "sourceMode=ssm requires a per-replica bindSource \u2014 the binary refuses SSM without one and fails fast at startup. Not schema-enforced: the chart's own defaults ship ssm with bindSource empty (set per replica at install)."
         }
       ]
     }

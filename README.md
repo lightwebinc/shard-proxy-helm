@@ -13,7 +13,7 @@ This repository packages templates, default values, JSON Schema validation, and 
 ```bash
 # OCI registry (SSM default — bindSource is the pod's fabric IPv6, unique per replica)
 helm install proxy oci://ghcr.io/lightwebinc/charts/shard-proxy \
-  --version 0.7.2 -n bsv-mcast --create-namespace \
+  --version 0.7.3 -n bsv-mcast --create-namespace \
   --set networking.multus.fabricIPv6=fd20::21/64 \
   --set config.bindSource=fd20::21
 
@@ -94,6 +94,11 @@ enables control-plane traces. See the
 
 ### Push-frame ingest (miner port deprecated)
 
+> Requires image `>= v1.15.0` — the pinned `appVersion` 1.14.0 image still has
+> the deprecated miner-port flags and ignores `SUBTREE_LISTEN_PORT` /
+> `BLOCK_LISTEN_PORT`, so these ports are inert until `appVersion` moves past
+> 1.14.0.
+
 The user ingress ports (`config.udpListenPort` 8725 / `config.tcpListenPort`)
 are transaction-only: privileged BRC-131/133/132 frames are dropped there
 (counted as `bsp_privileged_frame_rejected_total`). The former miner multicast
@@ -106,12 +111,19 @@ both at `0` means the proxy ingests transactions only.
 
 These push ports are privileged and **tunnel-bound**: only 8725 is public.
 Restrict who may reach them with `networkPolicy.pushIngressFrom` (fail-closed —
-an empty list with a push port set admits no peers). On a Multus/host-network
-multicast fabric the real source restriction is the fabric firewall / provider
-ACL (tunnel-bound), not the pod-network `NetworkPolicy`. See
+with `networkPolicy.enabled` and a push port set, the chart refuses to render
+when the list is empty, because an empty `from` in a NetworkPolicy rule admits
+ALL sources). On a Multus/host-network multicast fabric the real source
+restriction is the fabric firewall / provider ACL (tunnel-bound), not the
+pod-network `NetworkPolicy`. See
 [DESIGN.md § Ingress Authorization](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md#ingress-authorization-miner-tier-gate).
 
 ### Block PoW gate (default ON)
+
+> The binary's own `true` default requires image `>= v1.25.0`; earlier images
+> (including the pinned `appVersion` 1.14.0) default `REQUIRE_BLOCK_POW=false`.
+> The chart renders the env unconditionally, so the chart-level `true` still
+> enables the gate on those images.
 
 | Key | Env var | Default | Notes |
 |-----|---------|---------|-------|
@@ -150,9 +162,10 @@ values file. See
 the `SOURCE_MODE` env var. When `ssm`, set `config.bindSource` to the
 per-pod IPv6 from your Multus static IPAM (or Whereabouts, if installed) allocation — each replica
 MUST hold a distinct address (anycast/ECMP-shared sources break
-PIM-SSM RPF). `bindSource` renders to `BIND_SOURCE`; the schema fails
-the install fast when `sourceMode` is `ssm` and `bindSource` is empty
-(the binary would refuse that combination anyway). See the
+PIM-SSM RPF). `bindSource` renders to `BIND_SOURCE`; the **binary** fails
+fast when `sourceMode` is `ssm` and `bindSource` is empty — the schema does
+not enforce this (the chart's own defaults ship `ssm` with `bindSource`
+unset), so an install that forgets it CrashLoops at pod start. See the
 [SSM Support Plan](https://github.com/lightwebinc/bsv-multicast/blob/main/DESIGN.md#source-specific-multicast-ssm)
 for fabric prerequisites.
 

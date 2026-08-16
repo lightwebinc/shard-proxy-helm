@@ -2,7 +2,7 @@ apiVersion: v2
 name: shard-proxy
 description: IPv6 multicast frame proxy for the Bitcoin transaction distribution network
 type: application
-version: 0.7.2
+version: 0.7.3
 # appVersion MUST equal a tag published on ghcr.io/lightwebinc/shard-proxy
 # (the chart's tag:"" default pulls this). Images are published manually via the
 # binary repo's image-publish.yml workflow; bump appVersion ONLY in lockstep with
@@ -24,7 +24,7 @@ sources:
 maintainers:
   - name: lightwebinc
     url: https://github.com/lightwebinc
-icon: https://raw.githubusercontent.com/lightwebinc/bsv-multicast/main/.assets/icon.png
+icon: https://raw.githubusercontent.com/lightwebinc/bsv-multicast/main/.assets/icon.svg
 annotations:
   artifacthub.io/license: Apache-2.0
   artifacthub.io/changes: |
@@ -35,7 +35,7 @@ annotations:
     - kind: added
       description: Collapsed-node keys (config.stampSource, config.egressMulticastLoop, config.egressHoplimit) + collapsed-node example
     - kind: changed
-      description: Schema fails install fast when config.sourceMode=ssm and config.bindSource is empty
+      description: values.schema.json documents the sourceMode=ssm bindSource requirement (the binary fails fast at startup; not schema-enforced)
     - kind: changed
       description: Renamed orchestrated-edge example to collapsed-node; genericized example presets and doc pointers
     - kind: changed
@@ -48,3 +48,5 @@ annotations:
       description: BEEF_SHARD_BITS no longer widens an explicit 0 to 4 (Go-template default treats 0 as empty)
     - kind: fixed
       description: BEEF_MAX_OBJECT_BYTES / TXID_DEDUP_LOCAL_CAP render as integers, not scientific notation (values-file overrides were silently discarded)
+    - kind: fixed
+      description: networkPolicy push-ingress rule now fails the render when a push port is set and pushIngressFrom is empty — an empty `from` matches ALL sources, so the old render was world-open, not fail-closed

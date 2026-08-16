@@ -21,8 +21,12 @@ spec:
       {{- end }}
     {{- if or (gt (int (.Values.config.subtreeListenPort | default 0)) 0) (gt (int (.Values.config.blockListenPort | default 0)) 0) }}
     # Privileged push ingress (BRC-143 subtree / BRC-144 block): admit only the
-    # configured peers. An empty pushIngressFrom is fail-closed (no `from` peers
-    # ⇒ no source matches), so the privileged path is never silently world-open.
+    # configured peers. An empty-or-missing `from` matches ALL sources per the
+    # NetworkPolicy spec, so an empty pushIngressFrom would leave the privileged
+    # path silently world-open — refuse to render instead (fail-closed).
+    {{- if not .Values.networkPolicy.pushIngressFrom }}
+    {{- fail "networkPolicy.pushIngressFrom must list the permitted peers when config.subtreeListenPort or config.blockListenPort is set (an empty `from` admits ALL sources)" }}
+    {{- end }}
     - ports:
         {{- if gt (int (.Values.config.subtreeListenPort | default 0)) 0 }}
         - port: subtree-push
