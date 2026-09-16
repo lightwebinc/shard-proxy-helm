@@ -21,8 +21,9 @@ jobs:
         with:
           version: v3.16.0
 
-      # Defaults are sourceMode=ssm, which the schema (deliberately) fails
-      # without a per-replica config.bindSource — so lint/template set one.
+      # Defaults are sourceMode=ssm with config.bindSource empty. The schema does
+      # NOT enforce the pairing (the BINARY fails fast at startup instead), so
+      # lint/template set a per-replica bindSource to render a valid SSM deploy.
       - name: helm lint (defaults + bindSource)
         run: helm lint . --set config.bindSource=2001:db8::21
 

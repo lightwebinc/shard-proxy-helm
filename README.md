@@ -13,7 +13,7 @@ This repository packages templates, default values, JSON Schema validation, and 
 ```bash
 # OCI registry (SSM default — bindSource is the pod's fabric IPv6, unique per replica)
 helm install proxy oci://ghcr.io/lightwebinc/charts/shard-proxy \
-  --version 0.7.3 -n bsv-mcast --create-namespace \
+  --version 0.7.4 -n bsv-mcast --create-namespace \
   --set networking.multus.fabricIPv6=fd20::21/64 \
   --set config.bindSource=fd20::21
 
@@ -74,7 +74,7 @@ Two host facts the preset also sets:
 
 ## Values reference
 
-See [`values.yaml`](values.yaml) for the full annotated reference. Most flags accepted by the proxy binary are exposed under `.config`; the remainder (e.g. `-require-ef`, `-recv-batch`, `-retry-tee`, `-recv-buf-bytes`, `-pprof`, `-ingress-dedup`) can be set via `extraEnv`. Cluster-shape knobs (replicas, autoscaling, PDB, NetworkPolicy, ServiceMonitor) live at the top level.
+See [`values.yaml`](values.yaml) for the full annotated reference. Most flags accepted by the proxy binary are exposed under `.config`; the remainder (`-require-ef`, `-allow-stamped-ingress`, `-verify-payload-hash`, `-recv-batch`, `-retry-tee`, `-recv-buf-bytes`, `-pprof`, `-ingress-dedup`) can be set via `extraEnv` using the env names in [shard-proxy `docs/configuration.md`](https://github.com/lightwebinc/shard-proxy/blob/main/docs/configuration.md). Cluster-shape knobs (replicas, autoscaling, PDB, NetworkPolicy, ServiceMonitor) live at the top level.
 
 The chart includes [`values.schema.json`](values.schema.json) — `helm install` rejects out-of-range `shardBits`, invalid `mcScope`, invalid `networking.mode`, an invalid `logFormat` (`text`|`json`), `logLevel` (`debug`|`info`|`warn`|`error`), or out-of-range `traceSampling` (`0`–`1`) before reaching the cluster.
 
