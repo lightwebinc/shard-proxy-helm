@@ -1,9 +1,10 @@
 # Default values for shard-proxy.
 # Most binary flags are exposed under .config; advanced ones empty/disabled by
 # default. extraEnv-only (not modelled here): REQUIRE_EF, ALLOW_STAMPED_INGRESS,
-# VERIFY_PAYLOAD_HASH, BSP_RECV_BATCH, BSP_RETRY_TEE, BSP_RECV_BUF_BYTES,
-# BSP_PPROF, INGRESS_DEDUP (all read by the default appVersion image; the
-# stamped-ingress / payload-hash pair needs image >= 1.34.1).
+# VERIFY_PAYLOAD_HASH, VERIFY_SUBTREE_ROOT, BSP_RECV_BATCH, BSP_RETRY_TEE,
+# BSP_RECV_BUF_BYTES, BSP_PPROF, INGRESS_DEDUP (all read by the default
+# appVersion image except VERIFY_SUBTREE_ROOT, which needs an image newer than
+# 1.38.1; the stamped-ingress / payload-hash pair needs image >= 1.34.1).
 
 # HA NOTE: the proxy is the ingress datapath. replicaCount=1 is a single point of
 # failure — a pod restart drops ingress until it is rescheduled. The proxy holds no
